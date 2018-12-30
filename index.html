@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OUTVOICE</title>
+  <meta charset="utf-8">
+<style type="text/css">
+html {
+  padding: 0 8px;
+  background-color: hsl(240, 10%, 90%);
+}
+
+h1 {
+  font-size: 70px;
+  text-align: center;
+  color: hsl(240, 100%, 75%);
+  margin: 10px 0 0;
+  font-style: italic;
+  letter-spacing: -2px;
+}
+
+h1 span {
+  color: hsl(240, 10%, 80%);
+  font-weight: 100;
+  letter-spacing: 0;
+}
+
+h1, h2, h3, a {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol';
+}
+
+h2 { position: relative }
+h2:after {
+  content:'';    
+  width: calc(100% - 24px);
+  height: 16px;
+  z-index: -1;
+  background-color: hsl(240, 10%, 85%);
+  position: absolute;
+  top: 55%;
+  left: 12px;
+}
+
+h3 {
+  font-size: 16px;
+  font-variant: small-caps;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+body {
+  width: 672px;
+  width: 84ch;
+  margin: 0 auto;
+}
+
+input[type="number"] {
+  width: 6ch;
+}
+
+input {
+  color: black;
+  background-color: hsl(240, 100%, 97%);
+}
+
+input, button {
+  padding: 6px 8px;
+  font-size: 16px;
+  border: 3px solid hsl(240, 10%, 85%);
+  border-radius: 5px;
+}
+
+input:hover, button:hover {
+  border-color: black;
+}
+
+button:focus {
+  color: hsl(240, 100%, 75%);
+}
+
+input:focus, button:focus {
+  border-color: hsl(240, 100%, 75%);
+  outline: none;
+}
+
+input:focus {
+  background-color: hsl(240, 100%, 99%);
+}
+
+input:active, button:active {
+  border-color: hsl(240, 100%, 50%);
+}
+button:active {
+  color: hsl(240, 100%, 50%);
+}
+
+button {
+  color: black;
+  border-color: hsl(240, 10%, 85%);
+  background-color: hsl(240, 10%, 85%);
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 17px;
+}
+
+#invoice-wrapper {
+  position: relative;
+}
+
+textarea:hover, textarea:focus, textarea:active { opacity: 1 }
+textarea {
+  opacity: 0;
+  width: 100%;
+  height: calc(100% - 4ch);
+  background-color: white;
+  position: absolute;
+  transition: opacity 0.15s ease-in-out;
+  resize: none;
+  box-shadow:
+     10px 7px 20px 12px rgba(0, 0, 0, 0.04),
+    -10px 7px 20px 12px rgba(0, 0, 0, 0.04),
+      0px 4px 13px  4px rgba(0, 0, 0, 0.20);
+}
+
+pre {
+  background-color: rgba(255, 255, 255, 0.75);
+  box-shadow:
+     5px 5px 10px 6px rgba(0, 0, 0, 0.03),
+    -5px 5px 10px 6px rgba(0, 0, 0, 0.03),
+     0px 2px  6px 3px rgba(0, 0, 0, 0.10);
+}
+
+textarea, pre {
+  font-size: 16px;
+  width: 80ch;
+  top: 0;
+  color: black;
+  cursor: text;
+  padding: 2ch;
+  border-width: 0px;
+  overflow: hidden;
+}
+
+body, textarea, input, pre {
+  font-family:
+    'SF Mono',
+    Monaco,
+    Inconsolata,
+    'Fira Mono',
+    'Droid Sans Mono',
+    'Source Code Pro',
+    monospace;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 1em;
+}
+
+hr {
+  height: 0;
+  color: hsl(240, 10%, 85%);
+  background-color: hsl(240, 10%, 85%);
+  border: none;
+}
+
+label { margin-right: 16px }
+
+#content {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+li:before { content: '> ' }
+* { user-select: none }
+
+/* display mode */
+.display-mode, .display-mode * { box-shadow: none!important; background: white }
+.display-mode * { display: none }
+.display-mode pre, body, #invoice-wrapper { display: block }
+
+/* print mode */
+@media print {
+  * { display: none }
+  * { box-shadow: none!important; background: white }
+  pre, html, body, #invoice-wrapper { display: block!important }
+}
+
+/* cross browser support */
+@supports (-moz-appearance:none) { textarea { top: -1px } }
+</style>
+</head>
+<body>
+  <h1>Outvoice<span>.github.io</span></h1>
+  <div id="content">
+    <div style="display: flex;">
+
+      <div>
+        <h2>Inputs</h2>
+        <h3>Items</h3>
+        <label>
+          <span>description</span>
+          <input id="description" type="text" style="width: 38ch" maxlength="37">
+        </label>
+        <hr>
+        <label>
+          <span>price</span>
+          <input id="price" type="number" min="0" max="9999999">
+        </label>
+        <label>
+          <span>qty</span>
+          <input id="qty" type="number" min="0" max="9999">
+        </label>
+        <label style="margin-right: 0">
+          <span>vat</span>
+          <input id="vat" type="number" min="0" max="99">
+        </label>
+        <button>&nbsp+&nbsp</button>
+      </div>
+
+      <div style="flex-grow: 1">
+        <h2>Outputs</h2>
+        <ul>
+          <li><a id="link-text" download="file.txt">text</a></li>
+          <li><a id="link-pdf" download="file.pdf">pdf</a></li>
+          <li><a id="link-link" href="#">link</a></li>
+          <li><a id="link-email" href="mailto:">email</a></li>
+          <li><a id="link-print" href="#">print</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <h3>Parameters</h3>
+    <label>
+      <span>index</span>
+      <input id="index" type="number" min="0" max="999">
+    </label>
+    <label>
+      <span>due in</span>
+      <input id="due" type="number" min="0" max="999">
+      days
+    </label>
+
+    <h2 style="margin: 42px 0">Invoice</h2>
+    <div id="invoice-wrapper">
+      <textarea id="invoice-text"></textarea>
+      <pre id="invoice"></pre>
+    </div>
+  </div>
+<script type="text/javascript">
+const pad2 = n => String(n).padStart(2, '0')
+const formatDate = ({ offset = 0, d = new Date } = {}) => {
+  const e = new Date(d.getFullYear(), d.getMonth(), d.getDate() + offset)
+  return [ e.getDate(), e.getMonth()+1, e.getFullYear() ].map(pad2).join('/')
+}
+
+const getId = () => {
+  const today = new Date()
+  const d = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate())
+  const m = pad2(d.getMonth() + 1)
+  const y = d.getFullYear()
+  return [ m, y, String((localStorage[m+y] || 1)).padStart(3, '0') ].join('-')
+}
+
+const pads = {
+  description: 37,
+  subtotal: 9,
+  total: 22,
+  price: 8,
+  qty: 4,
+  vat: 4,
+  no: 3,
+}
+
+const padAll = obj => Object.keys(obj)
+  .map(
+    key => Number(obj[key]) == obj[key]
+      ? String(obj[key]).padStart(pads[key] || 0, ' ')
+      : ` ${String(obj[key]).padEnd(pads[key] - 1 || 0, ' ')}`
+  )
+
+const getTotalExcl = stuff => `(excl tax) ${Math.ceil(stuff
+    .reduce((acc, { price=0, qty=1 }) => price * qty + acc, 0))}`
+  .padStart(pads.total, ' ')
+
+const getTotalVat=stuff => `+ ${stuff
+    .reduce((acc, { price=0, qty=1, vat=0 }) => price*(vat/100) * qty + acc, 0)
+    .toFixed(2)}`
+  .padStart(pads.total, ' ')
+
+const getTotalIncl=stuff => `(incl tax): ${stuff
+    .reduce((acc, { price=0, qty=1, vat=0 }) =>
+      (price + price*(vat/100)) * qty + acc, 0)
+    .toFixed(2)} EURO`
+  .padEnd(36, ' ')
+
+const getList = stuff => stuff.map(({ description, price = 0, qty = 1, vat = 0 }, i) =>
+  padAll({
+    no: String(i + 1).padStart(2, '0'),
+    description,
+    price: `${price}`,
+    qty,
+    vat,
+    subtotal: `${price * qty}`,
+  })
+  .join(' |'))
+  .map(l => `  |${l} |`)
+  .join('\n')
+
+const generateInvoce = ({ d, user, client, stuff }) => {
+  const id = indexState.get()
+  //const 
+  return `# Invoice ${getId()}
+
+Created ${formatDate({ d })} - Due ${formatDate({ d, offset: 7 })}
+
+
+> FROM
+  NAME     ${user.name}
+  ADDRESS  ${user.address}
+  EMAIL    ${user.email}
+  PHONE    ${user.phone}
+  SIRET    ${user.siret}
+  IBAN     ${user.iban}
+  BIC      ${user.bic}
+
+
+> BILLED TO
+  NAME     ${client.name}
+  ADDRESS  ${client.address}
+  EMAIL    ${client.email}
+  VAT      ${client.vat}
+
+        -----------------------------------------------------------------------
+       | DESCRIPTION                          |  PRICE  | QTY | VAT | SUBTOTAL |
+   ............................................................................|
+${getList(stuff)}
+   -------------------------------------------|................................|
+                                              |         ${getTotalExcl(stuff)} |
+> TOTAL ${getTotalIncl(stuff)              }  |         ${ getTotalVat(stuff)} |
+                                               --------------------------------
+
+`.trim()
+}
+
+const filename = `invoice-clement-denis-${getId()}`
+const toPDF = text => `%PDF-1.5
+1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj
+2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj
+3 0 obj <</Type /Page /Parent 2 0 R /Resources 4 0 R /MediaBox [0 0 595 842] /Contents 6 0 R>> endobj
+4 0 obj <</Font <</F1 5 0 R>>>> endobj
+5 0 obj <</Type /Font /Subtype /Type1 /BaseFont /mono>> endobj
+6 0 obj <</Length 7680>> stream
+  BT
+  /F1 11 Tf
+  26 795 Td
+  18 TL
+  ${text.split('\n')
+  .map((line, index) => index ? `(${line}) '` : `(${line}) Tj`)
+  .join('\n  ')}
+  ET
+endstream endobj
+
+xref
+0 7
+0000000000 65535 f
+0000000009 00000 n
+0000000059 00000 n
+0000000116 00000 n
+0000000219 00000 n
+0000000259 00000 n
+0000000328 00000 n
+
+trailer <</Size 7/Root 1 0 R>>
+
+startxref
+454
+%%EOF`
+
+const makeLink = (text, id, ext, type, format = String) => {
+  const link = document.getElementById(id)
+  const name = link.download = `${filename}.${ext}`
+  const file = new File([format(text)], name, { type })
+  link.href = URL.createObjectURL(file)
+}
+
+// INDEX DB
+const idb = (() => {
+const dbp = new Promise((resolve, reject) => {
+  const openreq = window.indexedDB.open('use-idb', 1)
+    openreq.onerror = () => reject(openreq.error)
+    openreq.onsuccess = () => resolve(openreq.result)
+    openreq.onupgradeneeded = () => openreq.result.createObjectStore('idb')
+  })
+
+  const call = async (type, method, ...args) => {
+    const db = await dbp
+    const transaction = db.transaction('idb', type)
+    const store = transaction.objectStore('idb')
+
+    return new Promise((resolve, reject) => {
+      const req = store[method](...args)
+      transaction.oncomplete = () => resolve(req)
+      transaction.onabort = transaction.onerror = () => reject(transaction.error)
+    })
+  }
+
+  return {
+    get: async key => (await call('readonly', 'get', key)).result,
+    set: (key, value) => value === undefined
+      ? call('readwrite', 'delete', key)
+      : call('readwrite', 'put', value, key)
+  }
+})()
+
+const valueHandlers = elem => ({
+  get: () => elem.value,
+  set: (value) => elem.value = value,
+})
+
+const handlers = {
+  TEXTAREAtextarea: valueHandlers,
+  INPUTtext: valueHandlers,
+  INPUTnumber: elem => ({
+    get: () => Number(elem.value),
+    set: (value) => elem.value = String(value),
+  }),
+}
+
+const events = new Set
+const loop = () => {
+  for (const ev of events) {
+    ev()
+  }
+  setTimeout(() => requestAnimationFrame(loop))
+}
+
+const exec = (subs, value) => {
+  try { for (const sub of subs) sub(value) }
+  catch (err) { console.error('Unhandled:', err.stack) }
+}
+
+const __ = _ => _
+const stated = (id, defaultValue, opts = {}) => {
+  const elem = document.getElementById(id)
+  const handle = opts.handers || handlers[elem.tagName+elem.type](elem)
+  const subs = new Set
+  const subsError = new Set
+  let _reset
+  let _value
+  let _nextValue
+
+  const set = value => {
+    if (value === _value) return
+    _nextValue = value
+  }
+
+  const dispatch = () => {
+    if (_reset) {
+      try { opts.validate && opts.validate(_nextValue) }
+      catch (err) { return }
+      _reset = false
+    }
+
+    const isFocus = document.activeElement === elem
+    isFocus && set(handle.get())
+
+    if (_nextValue === undefined) return
+
+    try {
+      opts.validate && opts.validate(_nextValue)
+      exec(subs, _value = _nextValue)
+      idb.set(id, _value).catch(console.error)
+    } catch (err) {
+      _reset = true
+      handle.set(_value)
+      exec(subsError, err)
+    }
+
+    isFocus || handle.set(_value)
+    _nextValue = undefined
+  }
+
+  const init = idb.get(id).then(value => set(value || defaultValue))
+
+  events.add(dispatch)
+
+  return {
+    elem,
+    then: init.then.bind(init),
+    catch: init.catch.bind(init),
+    get: () => _value,
+    sub: (success, failure) => {
+      typeof success === 'function' && subs.add(success)
+      typeof failure === 'function' && subsError.add(failure)
+      return () => {
+        subs.remove(success)
+        subsError.remove(failure)
+      }
+    }
+  }
+}
+
+const invoicePre = document.getElementById('invoice')
+
+const descriptionState = stated('description', 'Software Development')
+const priceState = stated('price', 400)
+const qtyState = stated('qty', 1)
+const vatState = stated('vat', '0')
+const indexState = stated('index', 1)
+const dueState = stated('due', 7)
+
+const invoiceState = stated('invoice-text', {
+  header: `
+> FROM
+  NAME     Clark Kent
+  ADDRESS  66 rue Wonder Woman - 99000 Metropolis - FRANCE
+  EMAIL    email@gmail.com
+  PHONE    +336 01 02 03 04
+  SIRET    88776655400000
+  IBAN     FR76 1679 8000 0000 0000 0000 0000
+  BIC      TRZOFR21XXX
+
+> BILLED TO
+  NAME     SUPERMAN INC
+  ADDRESS  66 rue Wonder Woman - 99000 Metropolis - FRANCE
+  EMAIL    superman@dc.comics
+  VAT      101010101
+`,
+  items: [
+    { description: 'Software Development', price: 400, qty: 1 },
+    { description: 'Some License', price: 27, qty: 3, vat: 20 },
+  ],
+})
+
+invoiceState.sub(text => {
+  invoicePre.textContent = text
+
+// 'link-link'
+// 'link-email'
+// 'link-print'
+
+  makeLink(text, 'link-text', 'txt', 'plain/text')
+  makeLink(text, 'link-pdf',  'pdf', 'application/pdf', toPDF)
+}, err => {
+
+})
+
+Promise.all([
+  invoiceState,
+  descriptionState,
+  priceState,
+  qtyState,
+  vatState,
+  indexState,
+  dueState,
+]).then(loop)
+  .then(() => {
+    document.getElementById('content').style.opacity = 1
+  })
+
+/* * * * TODO * * *
+ * display mode
+ * cmd+s save as text
+ * cmd+a focus textarea
+ * enter to add
+ * mousewheel over inputs
+ * - Send by mail
+ * - max width
+ * - max height
+ * - proper table markers
+ * - show error to users
+ * - ascii only ?
+ */
+
+</script>
+</body>
+</html>
