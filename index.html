@@ -1,12 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>OUTVOICE</title>
+  <title>Outvoice</title>
   <meta charset="utf-8">
+  <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA////AN3V1QDo4+MA/4CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADMiIiIiMwADNERERERDMAMkIiIiIkIwAyQyMjIyQjADJBMTExNCMAMkMTExMUIwAyQRERERQjADJBMTExNCMAMkEREREUIwAyQxMTIyQjADJBERRERDMAMkERFBFCMwAyQREUFCMzADJBERRCMzMAM0RERCMzMwADMiIjMzMwDAAwAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAADAAwAA" rel="icon" type="image/x-icon" />
 <style type="text/css">
+* { user-select: none }
 html {
   padding: 0 8px;
   background-color: hsl(240, 10%, 90%);
+}
+
+body {
+  width: 672px;
+  width: 84ch;
+  margin: 0 auto;
+  color: hsl(240, 30%, 50%);
+}
+
+body, textarea, input, pre, a {
+  font-family:
+    'SF Mono',
+    Monaco,
+    Inconsolata,
+    'Fira Mono',
+    'Droid Sans Mono',
+    'Source Code Pro',
+    monospace;
+}
+
+h1, h2, h3 {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol';
 }
 
 h1 {
@@ -22,21 +57,6 @@ h1 span {
   color: hsl(240, 10%, 80%);
   font-weight: 100;
   letter-spacing: 0;
-}
-
-h1, h2, h3, a {
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif,
-    'Apple Color Emoji',
-    'Segoe UI Emoji',
-    'Segoe UI Symbol';
 }
 
 h2 { position: relative }
@@ -58,11 +78,15 @@ h3 {
   margin-bottom: 4px;
 }
 
-body {
-  width: 672px;
-  width: 84ch;
-  margin: 0 auto;
-}
+b { color: black }
+a { color: hsl(240, 70%, 50%); text-decoration: none }
+a:hover, a:focus { text-decoration: underline }
+li:before { content: '> ' }
+ul { list-style-type: none; padding-left: 1em }
+hr { height: 0; border: none }
+
+/* inputs */
+label { margin-right: 16px }
 
 input[type="number"] {
   width: 6ch;
@@ -80,30 +104,6 @@ input, button {
   border-radius: 5px;
 }
 
-input:hover, button:hover {
-  border-color: black;
-}
-
-button:focus {
-  color: hsl(240, 100%, 75%);
-}
-
-input:focus, button:focus {
-  border-color: hsl(240, 100%, 75%);
-  outline: none;
-}
-
-input:focus {
-  background-color: hsl(240, 100%, 99%);
-}
-
-input:active, button:active {
-  border-color: hsl(240, 100%, 50%);
-}
-button:active {
-  color: hsl(240, 100%, 50%);
-}
-
 button {
   color: black;
   border-color: hsl(240, 10%, 85%);
@@ -113,11 +113,6 @@ button {
   line-height: 17px;
 }
 
-#invoice-wrapper {
-  position: relative;
-}
-
-textarea:hover, textarea:focus, textarea:active { opacity: 1 }
 textarea {
   opacity: 0;
   width: 100%;
@@ -151,38 +146,31 @@ textarea, pre {
   overflow: hidden;
 }
 
-body, textarea, input, pre {
-  font-family:
-    'SF Mono',
-    Monaco,
-    Inconsolata,
-    'Fira Mono',
-    'Droid Sans Mono',
-    'Source Code Pro',
-    monospace;
+/* elements */
+#invoice-wrapper {
+  position: relative;
 }
-
-ul {
-  list-style-type: none;
-  padding-left: 1em;
-}
-
-hr {
-  height: 0;
-  color: hsl(240, 10%, 85%);
-  background-color: hsl(240, 10%, 85%);
-  border: none;
-}
-
-label { margin-right: 16px }
 
 #content {
   opacity: 0;
   transition: opacity 0.5s ease;
 }
 
-li:before { content: '> ' }
-* { user-select: none }
+/* interactions */
+input:hover, button:hover { border-color: black }
+textarea:hover, textarea:focus, textarea:active { opacity: 1 }
+input:focus { background-color: hsl(240, 100%, 99%) }
+button:focus { color: hsl(240, 100%, 75%) }
+button:focus, input:focus {
+  border-color: hsl(240, 100%, 75%);
+  outline: none;
+}
+
+input:active, button:active { border-color: hsl(240, 100%, 50%) }
+button:active { color: hsl(240, 100%, 50%) }
+
+/* hide shortcuts */
+.hide-shortcuts b { color: inherit; font-weight: inherit }
 
 /* display mode */
 .display-mode, .display-mode * { box-shadow: none!important; background: white }
@@ -209,61 +197,58 @@ li:before { content: '> ' }
         <h2>Inputs</h2>
         <h3>Items</h3>
         <label>
-          <span>description</span>
+          <span><b>d</b>escription</span>
           <input id="description" type="text" style="width: 38ch" maxlength="37">
         </label>
         <hr>
         <label>
-          <span>price</span>
+          <span><b>p</b>rice</span>
           <input id="price" type="number" min="0" max="9999999">
         </label>
         <label>
-          <span>qty</span>
+          <span><b>q</b>ty</span>
           <input id="qty" type="number" min="0" max="9999">
         </label>
         <label style="margin-right: 0">
-          <span>vat</span>
+          <span><b>v</b>at</span>
           <input id="vat" type="number" min="0" max="99">
         </label>
-        <button>&nbsp+&nbsp</button>
+        <button id="add">&nbsp+&nbsp</button>
+
+        <h3>D<b>a</b>te</h3>
+        <label>
+          <input id="date" type="date">
+        </label>
+        <label>
+          <span>due <b>i</b>n</span>
+          <input id="due" type="number" min="0" max="999">
+          days
+        </label>
       </div>
 
       <div style="flex-grow: 1">
         <h2>Outputs</h2>
         <ul>
-          <li><a id="link-text" download="file.txt">text</a></li>
-          <li><a id="link-pdf" download="file.pdf">pdf</a></li>
-          <li><a id="link-link" href="#">link</a></li>
-          <li><a id="link-email" href="mailto:">email</a></li>
-          <li><a id="link-print" href="#">print</a></li>
+          <li><a id="link-text" download="file.txt">te<b>x</b>t</a></li>
+          <li><a id="link-pdf" download="file.pdf">pd<b>f</b></a></li>
+          <li><a id="link-link" href="#"><b>l</b>ink</a></li>
+          <li><a id="link-email" href="mailto:">e<b>m</b>ail</a></li>
+          <li><a id="link-print" href="#">p<b>r</b>int</a></li>
+          <li><a id="link-copy" href="#"><b>c</b>opy</a></li>
         </ul>
       </div>
 
     </div>
 
-    <h3>Parameters</h3>
-    <label>
-      <span>index</span>
-      <input id="index" type="number" min="0" max="999">
-    </label>
-    <label>
-      <span>due in</span>
-      <input id="due" type="number" min="0" max="999">
-      days
-    </label>
-
-    <h2 style="margin: 42px 0">Invoice</h2>
+    <h2 style="margin: 42px 0">I<b>n</b>voice</h2>
     <div id="invoice-wrapper">
-      <textarea id="invoice-text"></textarea>
+      <textarea tabindex="1" id="invoice-text"></textarea>
       <pre id="invoice"></pre>
     </div>
   </div>
 <script type="text/javascript">
 const pad2 = n => String(n).padStart(2, '0')
-const formatDate = ({ offset = 0, d = new Date } = {}) => {
-  const e = new Date(d.getFullYear(), d.getMonth(), d.getDate() + offset)
-  return [ e.getDate(), e.getMonth()+1, e.getFullYear() ].map(pad2).join('/')
-}
+
 
 const getId = () => {
   const today = new Date()
@@ -284,75 +269,38 @@ const pads = {
 }
 
 const padAll = obj => Object.keys(obj)
-  .map(
-    key => Number(obj[key]) == obj[key]
-      ? String(obj[key]).padStart(pads[key] || 0, ' ')
-      : ` ${String(obj[key]).padEnd(pads[key] - 1 || 0, ' ')}`
-  )
+  .map(key => Number(obj[key]) == obj[key]
+    ? String(obj[key]).padStart(pads[key] || 0, ' ')
+    : ` ${String(obj[key]).padEnd(pads[key] - 1 || 0, ' ')}`)
 
-const getTotalExcl = stuff => `(excl tax) ${Math.ceil(stuff
+const getTotalExcl = items => `(excl tax) ${Math.ceil(items
     .reduce((acc, { price=0, qty=1 }) => price * qty + acc, 0))}`
   .padStart(pads.total, ' ')
 
-const getTotalVat=stuff => `+ ${stuff
+const getTotalVat = items => `+ ${items
     .reduce((acc, { price=0, qty=1, vat=0 }) => price*(vat/100) * qty + acc, 0)
     .toFixed(2)}`
   .padStart(pads.total, ' ')
 
-const getTotalIncl=stuff => `(incl tax): ${stuff
+const getTotalIncl = items => `(incl tax): ${items
     .reduce((acc, { price=0, qty=1, vat=0 }) =>
       (price + price*(vat/100)) * qty + acc, 0)
     .toFixed(2)} EURO`
   .padEnd(36, ' ')
 
-const getList = stuff => stuff.map(({ description, price = 0, qty = 1, vat = 0 }, i) =>
-  padAll({
-    no: String(i + 1).padStart(2, '0'),
-    description,
-    price: `${price}`,
-    qty,
-    vat,
-    subtotal: `${price * qty}`,
-  })
-  .join(' |'))
-  .map(l => `  |${l} |`)
-  .join('\n')
-
-const generateInvoce = ({ d, user, client, stuff }) => {
-  const id = indexState.get()
-  //const 
-  return `# Invoice ${getId()}
-
-Created ${formatDate({ d })} - Due ${formatDate({ d, offset: 7 })}
-
-
-> FROM
-  NAME     ${user.name}
-  ADDRESS  ${user.address}
-  EMAIL    ${user.email}
-  PHONE    ${user.phone}
-  SIRET    ${user.siret}
-  IBAN     ${user.iban}
-  BIC      ${user.bic}
-
-
-> BILLED TO
-  NAME     ${client.name}
-  ADDRESS  ${client.address}
-  EMAIL    ${client.email}
-  VAT      ${client.vat}
-
-        -----------------------------------------------------------------------
-       | DESCRIPTION                          |  PRICE  | QTY | VAT | SUBTOTAL |
-   ............................................................................|
-${getList(stuff)}
-   -------------------------------------------|................................|
-                                              |         ${getTotalExcl(stuff)} |
-> TOTAL ${getTotalIncl(stuff)              }  |         ${ getTotalVat(stuff)} |
-                                               --------------------------------
-
-`.trim()
-}
+const getList = items => items
+  .map(({ description, price = 0, qty = 1, vat = 0 }, i) =>
+    padAll({
+      no: String(i + 1).padStart(2, '0'),
+      description,
+      price: `${price}`,
+      qty,
+      vat,
+      subtotal: `${price * qty}`,
+    })
+    .join(' |'))
+    .map(l => `  |${l} |`)
+    .join('\n')
 
 const filename = `invoice-clement-denis-${getId()}`
 const toPDF = text => `%PDF-1.5
@@ -388,10 +336,10 @@ startxref
 454
 %%EOF`
 
-const makeLink = (text, id, ext, type, format = String) => {
+const makeLink = (text, id, ext, type) => {
   const link = document.getElementById(id)
   const name = link.download = `${filename}.${ext}`
-  const file = new File([format(text)], name, { type })
+  const file = new File([text], name, { type })
   link.href = URL.createObjectURL(file)
 }
 
@@ -424,18 +372,23 @@ const dbp = new Promise((resolve, reject) => {
   }
 })()
 
-const valueHandlers = elem => ({
-  get: () => elem.value,
-  set: (value) => elem.value = value,
-})
-
 const handlers = {
-  TEXTAREAtextarea: valueHandlers,
-  INPUTtext: valueHandlers,
-  INPUTnumber: elem => ({
-    get: () => Number(elem.value),
-    set: (value) => elem.value = String(value),
-  }),
+  get: elem => elem.value,
+  set: (elem, value) => elem.value = value,
+  parse: _ => _,
+  compare: (a, b) => a === b,
+  compareRaw: (a, b) => a === b,
+  persist: true,
+  INPUTnumber: {
+    get: elem => elem.valueAsNumber,
+    set: (elem, value) => elem.valueAsNumber = Number(value),
+  },
+  INPUTdate: {
+    compare: (a, b) => a && b && a.getTime() === b.getTime(),
+    compareRaw: (a, b) => a && b && a.getTime() === b.getTime(),
+    get: elem => elem.valueAsDate,
+    set: (elem, value) => elem.valueAsDate = new Date(value),
+  },
 }
 
 const events = new Set
@@ -452,54 +405,87 @@ const exec = (subs, value) => {
 }
 
 const __ = _ => _
-const stated = (id, defaultValue, opts = {}) => {
+const stated = (id, defaultValue, opts) => {
   const elem = document.getElementById(id)
-  const handle = opts.handers || handlers[elem.tagName+elem.type](elem)
+  const { get, set, persist, parse, compare, compareRaw } = {
+    ...handlers,
+    ...handlers[elem.tagName+elem.type],
+    ...opts,
+  }
+
   const subs = new Set
   const subsError = new Set
-  let _reset
-  let _value
-  let _nextValue
+  let _value //
+  let _failed // true if the current nextValue isn't parsable
+  let _nextValue // value to use for next update
+  let _rawValue // value from the input
+  let _wasFocus
 
-  const set = value => {
-    if (value === _value) return
-    _nextValue = value
+  const apply = value => {
+    console.log('apply value change for', id)
+    if (compare(value, _value)) {
+      console.log('no changes !!!')
+      //_nextValue = undefined
+      return value
+    }
+    console.log('change requested !')
+    return _nextValue = value
   }
 
-  const dispatch = () => {
-    if (_reset) {
-      try { opts.validate && opts.validate(_nextValue) }
-      catch (err) { return }
-      _reset = false
+  events.add(() => {
+    const isFocus = document.activeElement === elem
+    if (isFocus) {
+      // apply value from input
+      const newRawValue = get(elem)
+      if (newRawValue === null) return // impossible dates return null, skip
+      if (!compareRaw(_rawValue, newRawValue)) {
+        try {
+          console.log({ newRawValue, _value })
+          apply(parse(newRawValue, _value))
+          console.log('input value changed for state', id)
+          console.log(_nextValue)
+          _failed = false
+          _rawValue = newRawValue
+        } catch (err) {
+          console.log('failed to parse new input value for state', id)
+          console.log(newRawValue)
+          console.warn(err.stack)
+          _failed = true
+          // parsing failed, restore value
+          set(elem, _value)
+          setTimeout(exec, 0, subsError, err)
+          return
+        }
+      }
+    } else if (_wasFocus) {
+      _wasFocus = false
+      set(elem, _value)
+      setTimeout(exec, 0, subs, _value)
+      return
     }
 
-    const isFocus = document.activeElement === elem
-    isFocus && set(handle.get())
-
+    if (_failed) return
     if (_nextValue === undefined) return
 
-    try {
-      opts.validate && opts.validate(_nextValue)
-      exec(subs, _value = _nextValue)
-      idb.set(id, _value).catch(console.error)
-    } catch (err) {
-      _reset = true
-      handle.set(_value)
-      exec(subsError, err)
-    }
+    console.log('executing update value for', id)
 
-    isFocus || handle.set(_value)
+    _value = _nextValue
     _nextValue = undefined
-  }
+    setTimeout(exec, 0, subs, _value)
+    isFocus ? (_wasFocus = true) : set(elem, _value)
+    persist && idb.set(id, _value).catch(console.error)
+  })
 
-  const init = idb.get(id).then(value => set(value || defaultValue))
-
-  events.add(dispatch)
+  const init = persist
+    ? idb.get(id).then(value => apply(value || defaultValue))
+    : Promise.resolve().then(() => apply(defaultValue))
 
   return {
     elem,
     then: init.then.bind(init),
     catch: init.catch.bind(init),
+    set: value => apply(value),
+    getRaw: () => _rawValue,
     get: () => _value,
     sub: (success, failure) => {
       typeof success === 'function' && subs.add(success)
@@ -513,16 +499,21 @@ const stated = (id, defaultValue, opts = {}) => {
 }
 
 const invoicePre = document.getElementById('invoice')
+const addButton = document.getElementById('add')
 
 const descriptionState = stated('description', 'Software Development')
 const priceState = stated('price', 400)
 const qtyState = stated('qty', 1)
 const vatState = stated('vat', '0')
-const indexState = stated('index', 1)
 const dueState = stated('due', 7)
-
+const dateState = stated('date', new Date, { persist: false })
 const invoiceState = stated('invoice-text', {
-  header: `
+  header: `# Invoice ${getId()}\n\nCreated `,
+  date: new Date,
+  separator: ` - Due `,
+  due: 7,
+  body: `
+
 > FROM
   NAME     Clark Kent
   ADDRESS  66 rue Wonder Woman - 99000 Metropolis - FRANCE
@@ -537,14 +528,52 @@ const invoiceState = stated('invoice-text', {
   ADDRESS  66 rue Wonder Woman - 99000 Metropolis - FRANCE
   EMAIL    superman@dc.comics
   VAT      101010101
+
 `,
   items: [
     { description: 'Software Development', price: 400, qty: 1 },
     { description: 'Some License', price: 27, qty: 3, vat: 20 },
   ],
+}, {
+  persist: false,
+  parse: (value, prev) => {
+    const [ , header, separator, body, items ] = value
+      .split(/([^]*?)\d+\/\d+\/\d+([^]*?)\d+\/\d+\/\d+([^]*?)\n.+\n.+\| DESCRIPTION.+ \|\n.+([^]*?)\n   -/)
+
+    return {
+      ...prev,
+      header,
+      separator,
+      body,
+      items: items.trim().split('\n').map(line => {
+        const matches = line.split('|').map(s => s.trim()).filter(Boolean)
+        const description = matches[1]
+        const price = Number(matches[2])
+        const qty = Number(matches[3])
+        const vat = Number(matches[4])
+        return { description, price, qty, vat }
+      })
+    }
+  },
+  set: (elem, { header, separator, body, items, due, date }) => elem.value = [
+    header,
+    formatDate(date),
+    separator,
+    formatDate(date, due),
+    body, `
+        -----------------------------------------------------------------------
+       | DESCRIPTION                          |  PRICE  | QTY | VAT | SUBTOTAL |
+   ............................................................................|
+${getList(items)}
+   -------------------------------------------|................................|
+                                              |         ${getTotalExcl(items)} |
+> TOTAL ${getTotalIncl(items)              }  |         ${ getTotalVat(items)} |
+                                               --------------------------------
+` ].join(''),
 })
 
-invoiceState.sub(text => {
+invoiceState.sub(({ header, separator, body, items }) => {
+  const text = invoiceState.elem.value
   invoicePre.textContent = text
 
 // 'link-link'
@@ -552,31 +581,141 @@ invoiceState.sub(text => {
 // 'link-print'
 
   makeLink(text, 'link-text', 'txt', 'plain/text')
-  makeLink(text, 'link-pdf',  'pdf', 'application/pdf', toPDF)
+  makeLink(toPDF(text), 'link-pdf',  'pdf', 'application/pdf')
 }, err => {
-
+  // should display error properly to user
+  console.error(err)
 })
 
-Promise.all([
+const formatDate = (d, offset = 0) => {
+  const e = new Date(d.getFullYear(), d.getMonth(), d.getDate() + offset)
+  return [ e.getDate(), e.getMonth()+1, e.getFullYear() ].map(pad2).join('/')
+}
+
+dueState.sub(due => invoiceState.set({ ...invoiceState.get(), due }))
+dateState.sub(date => invoiceState.set({ ...invoiceState.get(), date }))
+
+addButton.addEventListener('click', () => invoiceState.set({
+  ...invoiceState.get(),
+  items: [
+    ...invoiceState.get().items,
+    {
+      description: descriptionState.get(),
+      price: priceState.get(),
+      qty: qtyState.get(),
+      vat: vatState.get(),
+    },
+  ],
+}))
+
+const states = [
   invoiceState,
   descriptionState,
   priceState,
   qtyState,
   vatState,
-  indexState,
   dueState,
-]).then(loop)
-  .then(() => {
-    document.getElementById('content').style.opacity = 1
-  })
+  dateState,
+]
+
+const selections = [
+  descriptionState.elem,
+  priceState.elem,
+  qtyState.elem,
+  vatState.elem,
+  addButton,
+  dateState.elem,
+  dueState.elem,
+  invoiceState.elem,
+]
+
+const inputs = selections.filter(elem => elem !== addButton)
+
+const isFocused = elem => document.activeElement === elem
+
+events.add(() => {
+  const hide = !document.hasFocus() || inputs.some(isFocused)
+  document.body.classList.toggle('hide-shortcuts', hide)
+})
+
+Promise.all(states)
+  .then(loop)
+  .then(() => document.getElementById('content').style.opacity = 1)
+
+const selectors = {
+  Enter: () => inputs[0].focus(),
+  d: () => descriptionState.elem.focus(),
+  p: () => priceState.elem.focus(),
+  q: () => qtyState.elem.focus(),
+  v: () => vatState.elem.focus(),
+  a: () => dateState.elem.focus(),
+  i: () => dueState.elem.focus(),
+  '+': () => addButton.click(),
+  '=': () => addButton.click(),
+  x: () => document.getElementById('link-text').click(),
+  f: () => document.getElementById('link-pdf').click(),
+  m: () => document.getElementById('link-email').click(),
+  r: () => document.getElementById('link-print').click(),
+  c: () => document.getElementById('link-copy').click(),
+  n: () => {
+    const pos = invoiceState.elem.value.indexOf('\n')
+    if (invoiceState.elem.createTextRange) {
+      const range = invoiceState.elem.createTextRange()
+      range.collapse(true)
+      range.moveEnd('character', pos)
+      range.moveStart('character', pos)
+      range.select()
+      return invoiceState.elem.focus()
+    }
+
+    if (invoiceState.elem.setSelectionRange) {
+      invoiceState.elem.focus()
+      invoiceState.elem.setSelectionRange(pos, pos)
+    }
+  }
+}
+
+addEventListener('keydown', e => {
+  if (!inputs.some(isFocused)) {
+    console.log(e)
+    if (e.ctrlKey || e.metaKey) return
+    const handler = selectors[e.key]
+    if (handler && handler(e) !== false) {
+      e.preventDefault()
+    }
+  } else {
+    switch (e.key) {
+      case 'Enter':
+        switch (document.activeElement) {
+          case invoiceState.elem:
+          case addButton: return
+        }
+
+        const index = selections.indexOf(document.activeElement)
+          + (e.shiftKey ? -1 : 1)
+
+        const clampedIndex = index < 0
+          ? selections.length - 1
+          : index % selections.length
+
+        selections[clampedIndex].focus()
+        return e.preventDefault()
+      case 'Escape':
+        return document.activeElement.blur && document.activeElement.blur()
+    }
+  }
+})
 
 /* * * * TODO * * *
- * display mode
  * cmd+s save as text
  * cmd+a focus textarea
- * enter to add
+
  * mousewheel over inputs
- * - Send by mail
+
+ * display mode
+ * autocompletion for used items
+ * Send by mail
+ 
  * - max width
  * - max height
  * - proper table markers
