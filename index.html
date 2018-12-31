@@ -654,6 +654,8 @@ const states = [
   invoiceState,
 ]
 
+const textarea = invoiceState.elem
+
 const selections = [ ...states.slice(0, 4), addButton, ...states.slice(4) ]
   .map(elem => elem.elem || elem)
 
@@ -662,7 +664,7 @@ const inputs = selections.filter(elem => elem !== addButton)
 const isFocused = elem => document.activeElement === elem
 const baseUrl = `${window.location.origin}${window.location.pathname}`
 
-const copy = () => navigator.clipboard.writeText(invoiceState.elem.value)
+const copy = () => navigator.clipboard.writeText(textarea.value)
 const addItem = () => invoiceState.set({
   ...invoiceState.get(),
   items: [
@@ -677,10 +679,10 @@ const addItem = () => invoiceState.set({
 })
 
 invoiceState.sub(hyperLink('link-text', () =>
-  makeFile(invoiceState.elem.value, 'txt', 'plain/text')))
+  makeFile(textarea.value, 'txt', 'plain/text')))
 
 invoiceState.sub(hyperLink('link-pdf', () =>
-  makeFile(toPDF(invoiceState.elem.value),  'pdf', 'application/pdf')))
+  makeFile(toPDF(textarea.value),  'pdf', 'application/pdf')))
  
 invoiceState.sub(hyperLink('link-link', () =>
   `${baseUrl}?data=${encodeData(invoiceState.get())}`))
@@ -713,7 +715,7 @@ invoiceState.sub(hyperLink('link-email', () => {
 getById('link-print').addEventListener('click', e => window.print())
 getById('link-copy').addEventListener('click', copy)
 
-invoiceState.sub(() => invoicePre.textContent = invoiceState.elem.value)
+invoiceState.sub(() => invoicePre.textContent = textarea.value)
 dueState.sub(due => invoiceState.set({ ...invoiceState.get(), due }))
 dateState.sub(date => invoiceState.set({ ...invoiceState.get(), date }))
 addButton.addEventListener('click', addItem)
@@ -744,7 +746,7 @@ const selectors = {
   v: eventSelect(vatState.elem),
   a: eventSelect(dateState.elem),
   i: eventSelect(dueState.elem),
-  n: eventSelect(invoiceState.elem),
+  n: eventSelect(textarea),
   '+': addItem,
   '=': addItem,
   x: eventOpen(getById('link-text')),
@@ -758,15 +760,16 @@ const selectors = {
 
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase()
+  const isAction = e.ctrlKey || e.metaKey
   if (!inputs.some(isFocused)) {
-    if (e.ctrlKey || e.metaKey) {
+    if (isAction) {
       if (k === 's') {
         e.preventDefault()
         selectors.x() // save text file
       } else if (k === 'a') {
         if (!e.metaKey && !e.ctrlKey) return
         e.preventDefault()
-        invoiceState.elem.select()
+        textarea.select()
       }
       return
     }
@@ -776,7 +779,7 @@ addEventListener('keydown', e => {
 
   switch (k) {
     case 'enter':
-      if (document.activeElement === invoiceState.elem) {
+      if (document.activeElement === textarea) {
         return requestAnimationFrame(() => invoiceState.elem.scrollTop = 0)
       }
       e.preventDefault()
