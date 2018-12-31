@@ -758,6 +758,47 @@ const selectors = {
   c: copy,
 }
 
+const getLineAt = (text, pos) => {
+  text[pos] === '\n' && pos--
+  return { start: text.lastIndexOf('\n', pos), end: text.indexOf('\n', pos) }
+}
+
+textarea.addEventListener('paste', e => {
+  if (textarea.selectionStart !== textarea.selectionEnd) return
+  const text = e.clipboardData.getData('text')
+  if (text[0] !== '\n' || text.indexOf('\n', 1) !== -1) return
+  e.preventDefault()
+
+  const selection = textarea.selectionEnd
+  const { start } = getLineAt(textarea.value, selection)
+  textarea.setSelectionRange(start, start)
+  document.execCommand('insertText', false, text)
+  const newSelection = selection + text.length
+  textarea.setSelectionRange(newSelection, newSelection)
+})
+
+textarea.addEventListener('copy', e => {
+  if (textarea.selectionStart !== textarea.selectionEnd) return
+  e.preventDefault()
+
+  const { start, end } = getLineAt(textarea.value, textarea.selectionEnd)
+  e.clipboardData.setData('text/plain', textarea.value.slice(start, end))
+})
+
+textarea.addEventListener('cut', e => {
+  if (textarea.selectionStart !== textarea.selectionEnd) return
+  e.preventDefault()
+
+  const pos = textarea.selectionEnd
+  const { start, end } = getLineAt(textarea.value, pos)
+  const text = textarea.value.slice(start, end)
+  e.clipboardData.setData('text/plain', text)
+
+  textarea.setSelectionRange(start, end)
+  document.execCommand('cut')
+  textarea.setSelectionRange(pos, pos)
+})
+
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase()
   const isAction = e.ctrlKey || e.metaKey
@@ -800,7 +841,7 @@ addEventListener('keydown', e => {
 
 
 /* * * * TODO * * *
- * sublime like ctrl+x / ctrl+v with no selection
+ * better handeling of empty lines for custom copy / paste
  * handle override
  * mousewheel over inputs
  * save / list / restore previous 
