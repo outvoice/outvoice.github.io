@@ -255,12 +255,12 @@ const makeFile = (text, ext, type) => {
   return URL.createObjectURL(file)
 }
 
-const ENC = { '+': '-', '/': '_', '=': '.' }
-const DEC = { '-': '+', '_': '/', '.': '=' }
-const urlSafeEncode = m => ENC[m]
-const urlSafeDecode = m => DEC[m]
-const encodeData = d => btoa(JSON.stringify(d)).replace(/[+/=]/g, urlSafeEncode)
-const decodeData = d => JSON.parse(atob(d.replace(/[-_.]/g, urlSafeDecode)))
+const replacer = (rgx, map) => (fn => s => s.replace(rgx, fn))(c => map[c])
+const urlSafeEncode = replacer(/[+/=]/g, { '+': '-', '/': '_', '=': '.' })
+const urlSafeDecode = replacer(/[-_.]/g, { '-': '+', '_': '/', '.': '=' })
+const pdfEscape = replacer(/[()\\]/g, { '(': '\\(', '\\': '\\\\', ')': '\\)' })
+const encodeData = d => urlSafeEncode(btoa(JSON.stringify(d)))
+const decodeData = d => JSON.parse(atob(urlSafeDecode(d)))
 const toPDF = text => `%PDF-1.5
 1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj
 2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj
@@ -273,7 +273,7 @@ const toPDF = text => `%PDF-1.5
   26 795 Td
   18 TL
   ${text.split('\n')
-  .map((line, index) => index ? `(${line}) '` : `(${line}) Tj`)
+  .map((line, index) => `(${pdfEscape(line)}) ${index ? "'" : 'Tj'}`)
   .join('\n  ')}
   ET
 endstream endobj
@@ -804,8 +804,11 @@ addEventListener('keydown', e => {
 
 
 /* * * * TODO * * *
+ * sublime like ctrl+x / ctrl+v with no selection
+ * remember selection on invoiceState
  * handle override
  * mousewheel over inputs
+ * save / list / restore previous 
  * autocompletion for used items
  * - max width
  * - max height
@@ -813,8 +816,8 @@ addEventListener('keydown', e => {
  * - show error to users
  * - ascii only ?
  check si link cree des leaks
- escape () in pdf
  user help
+ legacy version
  */
 
 </script>
