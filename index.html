@@ -113,13 +113,22 @@ button {
   line-height: 17px;
 }
 
+textarea, pre {
+  font-size: 16px;
+  width: 80ch;
+  top: 0;
+  color: black;
+  cursor: text;
+  padding: 2ch;
+  border-width: 0px;
+  overflow: hidden;
+}
+
 textarea {
   opacity: 0;
-  width: 100%;
   height: calc(100% - 4ch);
   background-color: white;
   position: absolute;
-  transition: opacity 0.15s ease-in-out;
   resize: none;
   box-shadow:
      10px 7px 20px 12px rgba(0, 0, 0, 0.04),
@@ -135,26 +144,9 @@ pre {
      0px 2px  6px 3px rgba(0, 0, 0, 0.10);
 }
 
-textarea, pre {
-  font-size: 16px;
-  width: 80ch;
-  top: 0;
-  color: black;
-  cursor: text;
-  padding: 2ch;
-  border-width: 0px;
-  overflow: hidden;
-}
-
 /* elements */
-#invoice-wrapper {
-  position: relative;
-}
-
-#content {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
+#invoice-wrapper { position: relative }
+#content { opacity: 0; transition: opacity 0.5s ease }
 
 /* interactions */
 input:hover, button:hover { border-color: black }
@@ -175,19 +167,23 @@ button:active { color: hsl(240, 100%, 50%) }
 /* display mode */
 .display-mode, .display-mode * { box-shadow: none!important; background: white }
 .display-mode * { display: none }
-.display-mode pre, body, #invoice-wrapper { display: block }
+.display-mode pre, body, #content, #invoice-wrapper { display: block!important }
 
 /* print mode */
 @media print {
   * { display: none }
   * { box-shadow: none!important; background: white }
-  pre, html, body, #invoice-wrapper { display: block!important }
+  pre, html, body, #content, #invoice-wrapper { display: block!important }
 }
 
 /* cross browser support */
 @supports (-moz-appearance:none) { textarea { top: -1px } }
 </style>
 </head>
+
+
+
+
 <body>
   <h1>Outvoice<span>.github.io</span></h1>
   <div id="content">
@@ -232,6 +228,7 @@ button:active { color: hsl(240, 100%, 50%) }
           <li><a id="link-text" download="file.txt">te<b>x</b>t</a></li>
           <li><a id="link-pdf" download="file.pdf">pd<b>f</b></a></li>
           <li><a id="link-link" href="#"><b>l</b>ink</a></li>
+          <li><a id="link-link-edit" href="#">lin<b>k</b></a> <i>editable</i></li>
           <li><a id="link-email" href="mailto:">e<b>m</b>ail</a></li>
           <li><a id="link-print" href="#">p<b>r</b>int</a></li>
           <li><a id="link-copy" href="#"><b>c</b>opy</a></li>
@@ -246,69 +243,30 @@ button:active { color: hsl(240, 100%, 50%) }
       <pre id="invoice"></pre>
     </div>
   </div>
+
+
+
+
 <script type="text/javascript">
-const pad2 = n => String(n).padStart(2, '0')
-
-
-const getId = () => {
-  const today = new Date()
-  const d = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate())
-  const m = pad2(d.getMonth() + 1)
-  const y = d.getFullYear()
-  return [ m, y, String((localStorage[m+y] || 1)).padStart(3, '0') ].join('-')
+// UTILS
+const getById = id => document.getElementById(id)
+const makeFile = (text, ext, type) => {
+  const file = new File([text], `outvoice.${ext}`, { type })
+  return URL.createObjectURL(file)
 }
 
-const pads = {
-  description: 37,
-  subtotal: 9,
-  total: 22,
-  price: 8,
-  qty: 4,
-  vat: 4,
-  no: 3,
-}
-
-const padAll = obj => Object.keys(obj)
-  .map(key => Number(obj[key]) == obj[key]
-    ? String(obj[key]).padStart(pads[key] || 0, ' ')
-    : ` ${String(obj[key]).padEnd(pads[key] - 1 || 0, ' ')}`)
-
-const getTotalExcl = items => `(excl tax) ${Math.ceil(items
-    .reduce((acc, { price=0, qty=1 }) => price * qty + acc, 0))}`
-  .padStart(pads.total, ' ')
-
-const getTotalVat = items => `+ ${items
-    .reduce((acc, { price=0, qty=1, vat=0 }) => price*(vat/100) * qty + acc, 0)
-    .toFixed(2)}`
-  .padStart(pads.total, ' ')
-
-const getTotalIncl = items => `(incl tax): ${items
-    .reduce((acc, { price=0, qty=1, vat=0 }) =>
-      (price + price*(vat/100)) * qty + acc, 0)
-    .toFixed(2)} EURO`
-  .padEnd(36, ' ')
-
-const getList = items => items
-  .map(({ description, price = 0, qty = 1, vat = 0 }, i) =>
-    padAll({
-      no: String(i + 1).padStart(2, '0'),
-      description,
-      price: `${price}`,
-      qty,
-      vat,
-      subtotal: `${price * qty}`,
-    })
-    .join(' |'))
-    .map(l => `  |${l} |`)
-    .join('\n')
-
-const filename = `invoice-clement-denis-${getId()}`
+const ENC = { '+': '-', '/': '_', '=': '.' }
+const DEC = { '-': '+', '_': '/', '.': '=' }
+const urlSafeEncode = m => ENC[m]
+const urlSafeDecode = m => DEC[m]
+const encodeData = d => btoa(JSON.stringify(d)).replace(/[+/=]/g, urlSafeEncode)
+const decodeData = d => JSON.parse(atob(d.replace(/[-_.]/g, urlSafeDecode)))
 const toPDF = text => `%PDF-1.5
 1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj
 2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj
 3 0 obj <</Type /Page /Parent 2 0 R /Resources 4 0 R /MediaBox [0 0 595 842] /Contents 6 0 R>> endobj
 4 0 obj <</Font <</F1 5 0 R>>>> endobj
-5 0 obj <</Type /Font /Subtype /Type1 /BaseFont /mono>> endobj
+5 0 obj <</Type /Font /Subtype /Type1 /BaseFont /Courier New, Courier>> endobj
 6 0 obj <</Length 7680>> stream
   BT
   /F1 11 Tf
@@ -336,12 +294,8 @@ startxref
 454
 %%EOF`
 
-const makeLink = (text, id, ext, type) => {
-  const link = document.getElementById(id)
-  const name = link.download = `${filename}.${ext}`
-  const file = new File([text], name, { type })
-  link.href = URL.createObjectURL(file)
-}
+
+
 
 // INDEX DB
 const idb = (() => {
@@ -372,6 +326,10 @@ const dbp = new Promise((resolve, reject) => {
   }
 })()
 
+
+
+
+// STATE MANAGEMENT
 const handlers = {
   get: elem => elem.value,
   set: (elem, value) => elem.value = value,
@@ -393,9 +351,7 @@ const handlers = {
 
 const events = new Set
 const loop = () => {
-  for (const ev of events) {
-    ev()
-  }
+  for (const ev of events) ev()
   setTimeout(() => requestAnimationFrame(loop))
 }
 
@@ -406,7 +362,7 @@ const exec = (subs, value) => {
 
 const __ = _ => _
 const stated = (id, defaultValue, opts) => {
-  const elem = document.getElementById(id)
+  const elem = getById(id)
   const { get, set, persist, parse, compare, compareRaw } = {
     ...handlers,
     ...handlers[elem.tagName+elem.type],
@@ -415,35 +371,22 @@ const stated = (id, defaultValue, opts) => {
 
   const subs = new Set
   const subsError = new Set
-  let _value //
-  let _failed // true if the current nextValue isn't parsable
-  let _nextValue // value to use for next update
-  let _rawValue // value from the input
+  let _value
+  let _failed
+  let _nextValue
+  let _rawValue
   let _wasFocus
 
-  const apply = value => {
-    console.log('apply value change for', id)
-    if (compare(value, _value)) {
-      console.log('no changes !!!')
-      //_nextValue = undefined
-      return value
-    }
-    console.log('change requested !')
-    return _nextValue = value
-  }
+  const apply = value => compare(value, _value) ? value : (_nextValue = value)
 
   events.add(() => {
     const isFocus = document.activeElement === elem
     if (isFocus) {
-      // apply value from input
       const newRawValue = get(elem)
-      if (newRawValue === null) return // impossible dates return null, skip
+      if (newRawValue === null) return
       if (!compareRaw(_rawValue, newRawValue)) {
         try {
-          console.log({ newRawValue, _value })
           apply(parse(newRawValue, _value))
-          console.log('input value changed for state', id)
-          console.log(_nextValue)
           _failed = false
           _rawValue = newRawValue
         } catch (err) {
@@ -451,7 +394,6 @@ const stated = (id, defaultValue, opts) => {
           console.log(newRawValue)
           console.warn(err.stack)
           _failed = true
-          // parsing failed, restore value
           set(elem, _value)
           setTimeout(exec, 0, subsError, err)
           return
@@ -466,8 +408,6 @@ const stated = (id, defaultValue, opts) => {
 
     if (_failed) return
     if (_nextValue === undefined) return
-
-    console.log('executing update value for', id)
 
     _value = _nextValue
     _nextValue = undefined
@@ -487,40 +427,199 @@ const stated = (id, defaultValue, opts) => {
     set: value => apply(value),
     getRaw: () => _rawValue,
     get: () => _value,
+    once: (fn, s) => s = subs.delete(v => s(fn(v))),
     sub: (success, failure) => {
       typeof success === 'function' && subs.add(success)
       typeof failure === 'function' && subsError.add(failure)
       return () => {
-        subs.remove(success)
-        subsError.remove(failure)
+        subs.delete(success)
+        subsError.delete(failure)
       }
     }
   }
 }
 
-const invoicePre = document.getElementById('invoice')
-const addButton = document.getElementById('add')
+const hyperLink = (id, generate) => {
+  const a = getById(id)
+  let _update
 
-const descriptionState = stated('description', 'Software Development')
-const priceState = stated('price', 400)
-const qtyState = stated('qty', 1)
-const vatState = stated('vat', '0')
-const dueState = stated('due', 7)
-const dateState = stated('date', new Date, { persist: false })
+  const apply = e => {
+    _update && (a.href = generate())
+    _update = undefined
+  }
+
+  a.addEventListener('mouseenter', apply, { passive: true })
+
+  a.open = mod => {
+    apply()
+    a.dispatchEvent(new MouseEvent('click', { ctrlKey: mod, metaKey: mod }))
+  }
+
+  return () => _update = true
+}
+
+
+
+// PARSING & FORMATING
+const PADS = {
+  description: 37,
+  subtotal: 9,
+  total: 22,
+  price: 8,
+  qty: 4,
+  vat: 4,
+  no: 3,
+}
+
+const padAll = obj => Object.keys(obj)
+  .map(key => Number(obj[key]) == obj[key]
+    ? String(obj[key]).padStart(PADS[key] || 0, ' ')
+    : ` ${String(obj[key]).padEnd(PADS[key] - 1 || 0, ' ')}`)
+
+const getTotalExcl = items => `(excl tax) ${Math.ceil(items
+    .reduce((acc, { price, qty }) => price * qty + acc, 0))}`
+  .padStart(PADS.total, ' ')
+
+const getTotalVat = items => `+ ${items
+    .reduce((acc, { price, qty, vat }) => price*(vat/100) * qty + acc, 0)
+    .toFixed(2)}`
+  .padStart(PADS.total, ' ')
+
+const getTotalIncl = items => `(incl tax): ${items
+    .reduce((acc, { price, qty, vat }) => (price + price*(vat/100))*qty + acc, 0)
+    .toFixed(2)} EURO`
+  .padEnd(36, ' ')
+
+const getList = items => items
+  .map(({ description, price = 0, qty = 1, vat = 0 }, i) => padAll({
+    no: String(i + 1).padStart(2, '0'),
+    description,
+    price: `${price}`,
+    qty,
+    vat,
+    subtotal: `${price * qty}`,
+  })
+  .join(' |'))
+  .map(l => `  |${l} |`)
+  .join('\n')
+
+const formatInvoiceFixed = ({ header, separator, body, items, due, date }) => [
+  header,
+  formatDate(date),
+  separator,
+  formatDate(date, due),
+  body, `
+        -----------------------------------------------------------------------
+       | DESCRIPTION                          |  PRICE  | QTY | VAT | SUBTOTAL |
+   ............................................................................|
+${getList(items)}
+   -------------------------------------------|................................|
+                                              |         ${getTotalExcl(items)} |
+> TOTAL ${getTotalIncl(items)              }  |         ${ getTotalVat(items)} |
+                                               --------------------------------
+` ].join('')
+
+const normalizeSpaces = str => str.replace(/ +/g, ' ')
+const formatInvoiceFluid =  ({ header, separator, body, items, due, date }) => [
+  normalizeSpaces(header),
+  formatDate(date),
+  normalizeSpaces(separator),
+  formatDate(date, due),
+  normalizeSpaces(body), `> ITEMS
+${items.map(({ description, price = 0, qty = 1, vat = 0 }) => [
+  description,
+  ' - ',
+  `${price} EURO`,
+  vat && ` (${vat}% VAT)`,
+  qty > 2 && ` x${qty}`,
+].filter(Boolean).join('')).join('\n')}
+
+> TOTAL
+${getTotalExcl(items).trim()} ${getTotalVat(items).trim()} (VAT)
+${getTotalIncl(items).trim().replace(':', '')}` ].join('')
+
+const trim = s => s.trim()
+const pad2 = n => String(n).padStart(2, '0')
+const getId = date => {
+  const m = pad2(date.getMonth() + 1)
+  const y = date.getFullYear()
+  return [ m, y, String((localStorage[m+y] || 1)).padStart(3, '0') ].join('-')
+}
+
+const formatDate = (d, offset = 0) => {
+  const e = new Date(d.getFullYear(), d.getMonth(), d.getDate() + offset)
+  return [ e.getDate(), e.getMonth()+1, e.getFullYear() ].map(pad2).join('/')
+}
+
+const parseItemLine = line => {
+  const matches = line.split('|').map(trim).filter(Boolean)
+  const description = matches[1]
+  const price = Number(matches[2])
+  const qty = Number(matches[3])
+  const vat = Number(matches[4])
+  return { description, price, qty, vat }
+}
+
+const parseInvoiceText = (value, prev) => {
+  const [ , header, separator, body, items ] = value
+    .split(/([^]*?)\d+\/\d+\/\d+([^]*?)\d+\/\d+\/\d+([^]*?)\n.+\n.+\| DESCRIPTION.+ \|\n.+([^]*?)\n   -/)
+
+  return {
+    ...prev,
+    header,
+    separator,
+    body,
+    items: items.trim().split('\n').filter(trim).map(parseItemLine),
+  }
+}
+
+
+
+
+// HANDLE DISPLAY MODE
+let urlData = {}
+try {
+  const params = new URLSearchParams(window.location.search)
+  if (params.get('data')) {
+    urlData = decodeData(params.get('data'))
+    urlData.date = new Date(urlData.date)
+    const editable = params.has('edit')
+    urlData.persistance = { override: editable, persist: editable }
+    editable || document.documentElement.classList.add('display-mode')
+  }
+} catch (err) {
+  console.log('Error loading url', window.location.search)
+  console.log(err)
+}
+
+
+
+
+// ELEMENTS
+const persistance = urlData.persistance || { persist: true }
+const defaultDate = urlData.date || new Date
+const invoicePre = getById('invoice')
+const addButton = getById('add')
+const descriptionState = stated('description', urlData.description || 'Software Development')
+const priceState = stated('price', urlData.price || 400)
+const qtyState = stated('qty', urlData.qty || 1)
+const vatState = stated('vat', urlData.vat || '0')
+const dueState = stated('due', urlData.due || 7, persistance)
+const dateState = stated('date', defaultDate, { persist: false })
 const invoiceState = stated('invoice-text', {
-  header: `# Invoice ${getId()}\n\nCreated `,
-  date: new Date,
+  header: `# Invoice ${getId(defaultDate)}\n\nCreated `,
+  date: defaultDate,
   separator: ` - Due `,
-  due: 7,
+  due: urlData.due || 7,
   body: `
 
 > FROM
   NAME     Clark Kent
   ADDRESS  66 rue Wonder Woman - 99000 Metropolis - FRANCE
   EMAIL    email@gmail.com
-  PHONE    +336 01 02 03 04
+  PHONE    +33601020304
   SIRET    88776655400000
-  IBAN     FR76 1679 8000 0000 0000 0000 0000
+  IBAN     FR76167980000000000000000000
   BIC      TRZOFR21XXX
 
 > BILLED TO
@@ -531,71 +630,40 @@ const invoiceState = stated('invoice-text', {
 
 `,
   items: [
-    { description: 'Software Development', price: 400, qty: 1 },
+    { description: 'Software Development', price: 400, qty: 1, vat: 0 },
     { description: 'Some License', price: 27, qty: 3, vat: 20 },
   ],
+  ...urlData,
 }, {
-  persist: false,
-  parse: (value, prev) => {
-    const [ , header, separator, body, items ] = value
-      .split(/([^]*?)\d+\/\d+\/\d+([^]*?)\d+\/\d+\/\d+([^]*?)\n.+\n.+\| DESCRIPTION.+ \|\n.+([^]*?)\n   -/)
-
-    return {
-      ...prev,
-      header,
-      separator,
-      body,
-      items: items.trim().split('\n').map(line => {
-        const matches = line.split('|').map(s => s.trim()).filter(Boolean)
-        const description = matches[1]
-        const price = Number(matches[2])
-        const qty = Number(matches[3])
-        const vat = Number(matches[4])
-        return { description, price, qty, vat }
-      })
-    }
-  },
-  set: (elem, { header, separator, body, items, due, date }) => elem.value = [
-    header,
-    formatDate(date),
-    separator,
-    formatDate(date, due),
-    body, `
-        -----------------------------------------------------------------------
-       | DESCRIPTION                          |  PRICE  | QTY | VAT | SUBTOTAL |
-   ............................................................................|
-${getList(items)}
-   -------------------------------------------|................................|
-                                              |         ${getTotalExcl(items)} |
-> TOTAL ${getTotalIncl(items)              }  |         ${ getTotalVat(items)} |
-                                               --------------------------------
-` ].join(''),
+  ...persistance,
+  parse: parseInvoiceText,
+  set: (elem, invoice) => elem.value = formatInvoiceFixed(invoice),
 })
 
-invoiceState.sub(({ header, separator, body, items }) => {
-  const text = invoiceState.elem.value
-  invoicePre.textContent = text
 
-// 'link-link'
-// 'link-email'
-// 'link-print'
 
-  makeLink(text, 'link-text', 'txt', 'plain/text')
-  makeLink(toPDF(text), 'link-pdf',  'pdf', 'application/pdf')
-}, err => {
-  // should display error properly to user
-  console.error(err)
-})
 
-const formatDate = (d, offset = 0) => {
-  const e = new Date(d.getFullYear(), d.getMonth(), d.getDate() + offset)
-  return [ e.getDate(), e.getMonth()+1, e.getFullYear() ].map(pad2).join('/')
-}
+// HANDLE EVENTS
+const states = [
+  descriptionState,
+  priceState,
+  qtyState,
+  vatState,
+  dateState,
+  dueState,
+  invoiceState,
+]
 
-dueState.sub(due => invoiceState.set({ ...invoiceState.get(), due }))
-dateState.sub(date => invoiceState.set({ ...invoiceState.get(), date }))
+const selections = [ ...states.slice(0, 4), addButton, ...states.slice(4) ]
+  .map(elem => elem.elem || elem)
 
-addButton.addEventListener('click', () => invoiceState.set({
+const inputs = selections.filter(elem => elem !== addButton)
+
+const isFocused = elem => document.activeElement === elem
+const baseUrl = `${window.location.origin}${window.location.pathname}`
+
+const copy = () => navigator.clipboard.writeText(invoiceState.elem.value)
+const addItem = () => invoiceState.set({
   ...invoiceState.get(),
   items: [
     ...invoiceState.get().items,
@@ -606,32 +674,49 @@ addButton.addEventListener('click', () => invoiceState.set({
       vat: vatState.get(),
     },
   ],
+})
+
+invoiceState.sub(hyperLink('link-text', () =>
+  makeFile(invoiceState.elem.value, 'txt', 'plain/text')))
+
+invoiceState.sub(hyperLink('link-pdf', () =>
+  makeFile(toPDF(invoiceState.elem.value),  'pdf', 'application/pdf')))
+ 
+invoiceState.sub(hyperLink('link-link', () =>
+  `${baseUrl}?data=${encodeData(invoiceState.get())}`))
+
+const regenEditLink = hyperLink('link-link-edit', () =>
+  `${baseUrl}?edit&data=${encodeData({
+    description: descriptionState.get(),
+    price: priceState.get(),
+    qty: qtyState.get(),
+    vat: vatState.get(),
+    ...invoiceState.get(),
+  })}`)
+
+invoiceState.sub(regenEditLink)
+qtyState.sub(regenEditLink)
+vatState.sub(regenEditLink)
+priceState.sub(regenEditLink)
+descriptionState.sub(regenEditLink)
+
+invoiceState.sub(hyperLink('link-email', () => {
+  const textFuild = formatInvoiceFluid(invoiceState.get())
+  const emails = textFuild.split(/(\S+@\S+\.\S+)/g).filter((_, i) => i % 2)
+  const subject = textFuild.trim().split('\n').filter(Boolean)[0]
+
+  return `mailto:${emails[emails.length-1]
+    }?subject=${encodeURIComponent(subject)
+    }&body=${encodeURIComponent(textFuild)}`
 }))
 
-const states = [
-  invoiceState,
-  descriptionState,
-  priceState,
-  qtyState,
-  vatState,
-  dueState,
-  dateState,
-]
+getById('link-print').addEventListener('click', e => window.print())
+getById('link-copy').addEventListener('click', copy)
 
-const selections = [
-  descriptionState.elem,
-  priceState.elem,
-  qtyState.elem,
-  vatState.elem,
-  addButton,
-  dateState.elem,
-  dueState.elem,
-  invoiceState.elem,
-]
-
-const inputs = selections.filter(elem => elem !== addButton)
-
-const isFocused = elem => document.activeElement === elem
+invoiceState.sub(() => invoicePre.textContent = invoiceState.elem.value)
+dueState.sub(due => invoiceState.set({ ...invoiceState.get(), due }))
+dateState.sub(date => invoiceState.set({ ...invoiceState.get(), date }))
+addButton.addEventListener('click', addItem)
 
 events.add(() => {
   const hide = !document.hasFocus() || inputs.some(isFocused)
@@ -640,87 +725,96 @@ events.add(() => {
 
 Promise.all(states)
   .then(loop)
-  .then(() => document.getElementById('content').style.opacity = 1)
+  .then(() => getById('content').style.opacity = 1)
+
+const select = (elem, start, end) => {
+  elem.focus()
+  elem.setSelectionRange(start, end || start)
+}
+
+const eventOpen = a => e => a.open(e.shiftKey)
+const eventSelect = input => e => e.shiftKey
+  ? select(input, 0, input.value.length)
+  : input.focus()
 
 const selectors = {
-  Enter: () => inputs[0].focus(),
-  d: () => descriptionState.elem.focus(),
-  p: () => priceState.elem.focus(),
-  q: () => qtyState.elem.focus(),
-  v: () => vatState.elem.focus(),
-  a: () => dateState.elem.focus(),
-  i: () => dueState.elem.focus(),
-  '+': () => addButton.click(),
-  '=': () => addButton.click(),
-  x: () => document.getElementById('link-text').click(),
-  f: () => document.getElementById('link-pdf').click(),
-  m: () => document.getElementById('link-email').click(),
-  r: () => document.getElementById('link-print').click(),
-  c: () => document.getElementById('link-copy').click(),
+  enter: () => {
+    document.activeElement === addButton && addItem()
+    inputs[0].focus()
+  },
+  d: eventSelect(descriptionState.elem),
+  p: eventSelect(priceState.elem),
+  q: eventSelect(qtyState.elem),
+  v: eventSelect(vatState.elem),
+  a: eventSelect(dateState.elem),
+  i: eventSelect(dueState.elem),
+  '+': addItem,
+  '=': addItem,
+  x: eventOpen(getById('link-text')),
+  f: eventOpen(getById('link-pdf')),
+  m: eventOpen(getById('link-email')),
+  l: eventOpen(getById('link-link')),
+  k: eventOpen(getById('link-link-edit')),
+  r: eventOpen(getById('link-print')),
+  c: copy,
   n: () => {
     const pos = invoiceState.elem.value.indexOf('\n')
-    if (invoiceState.elem.createTextRange) {
-      const range = invoiceState.elem.createTextRange()
-      range.collapse(true)
-      range.moveEnd('character', pos)
-      range.moveStart('character', pos)
-      range.select()
-      return invoiceState.elem.focus()
-    }
-
-    if (invoiceState.elem.setSelectionRange) {
-      invoiceState.elem.focus()
-      invoiceState.elem.setSelectionRange(pos, pos)
-    }
+    select(invoiceState.elem, pos, pos)
   }
 }
 
 addEventListener('keydown', e => {
+  const k = e.key.toLowerCase()
   if (!inputs.some(isFocused)) {
-    console.log(e)
-    if (e.ctrlKey || e.metaKey) return
-    const handler = selectors[e.key]
-    if (handler && handler(e) !== false) {
+    if (e.ctrlKey || e.metaKey) {
+      if (k === 's') {
+        e.preventDefault()
+        selectors.x() // save text file
+      } else if (k === 'a') {
+        if (!e.metaKey && !e.ctrlKey) return
+        e.preventDefault()
+        select(invoiceState.elem, 0, invoiceState.elem.value.length)
+      }
+      return
+    }
+    selectors[k] && selectors[k](e) !== false && e.preventDefault()
+    return
+  }
+
+  switch (k) {
+    case 'enter':
+      if (document.activeElement === invoiceState.elem) {
+        return requestAnimationFrame(() => invoiceState.elem.scrollTop = 0)
+      }
       e.preventDefault()
-    }
-  } else {
-    switch (e.key) {
-      case 'Enter':
-        switch (document.activeElement) {
-          case invoiceState.elem:
-          case addButton: return
-        }
+      const index = selections.indexOf(document.activeElement)
+        + (e.shiftKey ? -1 : 1)
 
-        const index = selections.indexOf(document.activeElement)
-          + (e.shiftKey ? -1 : 1)
+      const clampedIndex = index < 0
+        ? selections.length - 1
+        : index % selections.length
 
-        const clampedIndex = index < 0
-          ? selections.length - 1
-          : index % selections.length
-
-        selections[clampedIndex].focus()
-        return e.preventDefault()
-      case 'Escape':
-        return document.activeElement.blur && document.activeElement.blur()
-    }
+      return selections[clampedIndex].focus()
+    case 'escape':
+      return document.activeElement.blur && document.activeElement.blur()
   }
 })
 
+
+
+
 /* * * * TODO * * *
- * cmd+s save as text
- * cmd+a focus textarea
-
+ * handle override
  * mousewheel over inputs
-
- * display mode
  * autocompletion for used items
- * Send by mail
- 
  * - max width
  * - max height
  * - proper table markers
  * - show error to users
  * - ascii only ?
+ check si link cree des leaks
+ escape () in pdf
+ user help
  */
 
 </script>
