@@ -842,12 +842,17 @@ addEventListener('keydown', e => {
   }
 })
 
+addEventListener('wheel', e => {
+  e.target.tagName === 'INPUT' &&
+    e.target !== document.activeElement &&
+    e.target.focus()
+})
+
 
 
 
 /* * * * TODO * * *
  * handle override
- * mousewheel over inputs
  * save / list / restore previous 
  * autocompletion for used items
  * - max width
