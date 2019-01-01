@@ -9,13 +9,10 @@
 html {
   padding: 0 8px;
   background-color: hsl(240, 10%, 90%);
+  color: hsl(240, 30%, 50%);
 }
 
 body {
-  width: 672px;
-  width: 84ch;
-  margin: 0 auto;
-  color: hsl(240, 30%, 50%);
 }
 
 body, textarea, input, pre, a {
@@ -47,10 +44,12 @@ h1, h2, h3 {
 h1 {
   font-size: 70px;
   text-align: center;
-  color: hsl(240, 100%, 75%);
-  margin: 10px 0 0;
+  color: hsl(240, 40%, 80%);
   font-style: italic;
   letter-spacing: -2px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
 h1 span {
@@ -146,7 +145,13 @@ pre {
 
 /* elements */
 #invoice-wrapper { position: relative }
-#content { opacity: 0; transition: opacity 0.5s ease }
+#content {
+  width: 672px;
+  width: 84ch;
+  margin: 0 auto;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
 
 /* interactions */
 input:hover, button:hover { border-color: black }
@@ -237,7 +242,6 @@ button:active { color: hsl(240, 100%, 50%) }
 
     </div>
 
-    <h2 style="margin: 42px 0">I<b>n</b>voice</h2>
     <div id="invoice-wrapper">
       <textarea tabindex="1" id="invoice-text"></textarea>
       <pre id="invoice"></pre>
