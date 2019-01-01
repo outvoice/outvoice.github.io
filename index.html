@@ -166,7 +166,7 @@ button:active { color: hsl(240, 100%, 50%) }
 
 /* display mode */
 .display-mode, .display-mode * { box-shadow: none!important; background: white }
-.display-mode * { display: none }
+.display-mode * { display: none; user-select: text }
 .display-mode pre, body, #content, #invoice-wrapper { display: block!important }
 
 /* print mode */
@@ -811,9 +811,10 @@ addEventListener('keydown', e => {
     if (isAction) {
       if (k === 's') {
         e.preventDefault()
-        selectors.x() // save text file
+        selectors.x(e) // save text file
       } else if (k === 'a') {
         if (!e.metaKey && !e.ctrlKey) return
+        if (document.documentElement.classList.contains('display-mode')) return
         e.preventDefault()
         textarea.select()
       }
