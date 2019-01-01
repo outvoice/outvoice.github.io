@@ -765,15 +765,17 @@ const getLineAt = (text, pos) => {
 
 textarea.addEventListener('paste', e => {
   if (textarea.selectionStart !== textarea.selectionEnd) return
-  const text = e.clipboardData.getData('text')
-  if (text[0] !== '\n' || text.indexOf('\n', 1) !== -1) return
+  const clipboardText = e.clipboardData.getData('text')
+  if (clipboardText[0] !== '\n' || clipboardText.indexOf('\n', 1) !== -1) return
   e.preventDefault()
 
+  const text = textarea.value
   const selection = textarea.selectionEnd
-  const { start } = getLineAt(textarea.value, selection)
+  const { start } = getLineAt(text, selection)
   textarea.setSelectionRange(start, start)
-  document.execCommand('insertText', false, text)
-  const newSelection = selection + text.length
+  document.execCommand('insertText', false, clipboardText)
+  const nearestNL = text.indexOf('\n', selection)
+  const newSelection = Math.min(nearestNL, selection + clipboardText.length)
   textarea.setSelectionRange(newSelection, newSelection)
 })
 
@@ -781,8 +783,11 @@ textarea.addEventListener('copy', e => {
   if (textarea.selectionStart !== textarea.selectionEnd) return
   e.preventDefault()
 
-  const { start, end } = getLineAt(textarea.value, textarea.selectionEnd)
-  e.clipboardData.setData('text/plain', textarea.value.slice(start, end))
+  const text = textarea.value
+  const { start, end } = getLineAt(text, textarea.selectionEnd)
+  e.clipboardData.setData('text/plain', start === end
+    ? '\n'
+    : text.slice(start, end))
 })
 
 textarea.addEventListener('cut', e => {
@@ -792,9 +797,9 @@ textarea.addEventListener('cut', e => {
   const pos = textarea.selectionEnd
   const { start, end } = getLineAt(textarea.value, pos)
   const text = textarea.value.slice(start, end)
-  e.clipboardData.setData('text/plain', text)
+  e.clipboardData.setData('text/plain', start === end ? '\n' : text)
 
-  textarea.setSelectionRange(start, end)
+  textarea.setSelectionRange(start, start === end ? end + 1 : end)
   document.execCommand('cut')
   textarea.setSelectionRange(pos, pos)
 })
@@ -841,7 +846,6 @@ addEventListener('keydown', e => {
 
 
 /* * * * TODO * * *
- * better handeling of empty lines for custom copy / paste
  * handle override
  * mousewheel over inputs
  * save / list / restore previous 
