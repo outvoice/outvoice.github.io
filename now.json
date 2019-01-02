@@ -1,6 +1,18 @@
 {
   "version": 2,
-  "builds": [{ "src": "*.js", "use": "@now/node" }],
+  "builds": [
+    { "src": "set.js", "use": "@now/node" },
+    { "src": "get.js", "use": "@now/node" }
+  ],
+  "routes": [
+    { "src": "/get", "methods": ["GET"], "dest": "/get.js" },
+    { "src": "/set", "methods": ["POST"], "dest": "/set.js" },
+    {
+      "src": "/.*",
+      "status": 301,
+      "headers": { "Location": "https://outvoice.github.io/" }
+    }
+  ],
   "env": {
     "DBUSER": "dbuser",
     "DBPASS": "dbpass",
