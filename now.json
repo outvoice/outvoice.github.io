@@ -16,7 +16,7 @@
       "dest": "/set.js"
     },
     {
-      "src": "/(?<id>[^/]*)",
+      "src": "/(?<id>[^/]+)",
       "methods": ["GET", "OPTIONS"],
       "headers": {
         "content-type": "application/json",
