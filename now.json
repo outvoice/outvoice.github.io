@@ -6,25 +6,25 @@
   ],
   "routes": [
     {
-      "src": "/invoice/(?<id>[^/]*",
-      "methods": ["GET", "OPTIONS"],
-      "headers": {
-        "cache-control": "public, max-age=604800, s-maxage=604800",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Origin": "https://outvoice.github.io"
-        "content-type": "application/json",
-      },
-      "dest": "/get.js?id=$id"
-    },
-    {
-      "src": "/invoice",
+      "src": "/",
       "methods": ["POST", "OPTIONS"],
       "headers": {
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Origin": "https://outvoice.github.io"
         "content-type": "application/json",
+        "access-control-allow-methods": "POST, OPTIONS",
+        "access-control-allow-origin": "https://outvoice.github.io"
       },
       "dest": "/set.js"
+    },
+    {
+      "src": "/(?<id>[^/]*)",
+      "methods": ["GET", "OPTIONS"],
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "public, max-age=604800, s-maxage=604800",
+        "access-control-allow-methods": "GET, OPTIONS",
+        "access-control-allow-origin": "https://outvoice.github.io"
+      },
+      "dest": "/get.js?id=$id"
     },
     {
       "src": "/.*",
