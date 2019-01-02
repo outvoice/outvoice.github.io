@@ -14,15 +14,21 @@ const db = MongoClient.connect(
   return client.db('outvoice').collection('invoices')
 })
 
+const replacer = (rgx, map) => (fn => s => s.replace(rgx, fn))(c => map[c])
+const urlSafeEncode = replacer(/[+/=]/g, { '+': '-', '/': '_', '=': '.' })
+const urlSafeDecode = replacer(/[-_.]/g, { '-': '+', _: '/', '.': '=' })
 const toHex = n => n.toString(16).padStart(2, '0')
 const fromHex = s => parseInt(s, 16)
-const decodeId = id => [...Buffer.from(id, 'base64')].map(toHex).join('')
+const decodeId = id =>
+  [...Buffer.from(urlSafeDecode(id), 'base64')].map(toHex).join('')
 const encodeId = id =>
-  Buffer.from(
-    String(id)
-      .match(/.{2}/g)
-      .map(fromHex),
-  ).toString('base64')
+  urlSafeEncode(
+    Buffer.from(
+      String(id)
+        .match(/.{2}/g)
+        .map(fromHex),
+    ).toString('base64'),
+  )
 
 module.exports.invoices = {
   set: async data => encodeId((await (await db).insertOne(data)).insertedId),
