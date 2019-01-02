@@ -1,4 +1,4 @@
 const { invoices } = require('./db.js')
-const { json } = require('./serve.js')
+const { url } = require('./serve.js')
 
-module.exports = json(async ({ id }) => invoices.get(id))
+module.exports = url(async ({ id }) => invoices.get(id))

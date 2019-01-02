@@ -1,10 +1,17 @@
 const { json } = require('micro')
-
-module.exports.json = handler => async (req, res) => {
+const serve = parser => handler => async (req, res) => {
   try {
-    return handler(await json(req))
+    return handler(await parser(req))
   } catch (err) {
-    console.log(err.stack)
     return { error: err.toString() }
   }
 }
+
+module.exports.json = serve(json)
+module.exports.url = serve(req => {
+  const params = {}
+  for (const [k, v] of new URLSearchParams(new URL(req.url).search)) {
+    params[k] = v
+  }
+  return params
+})
