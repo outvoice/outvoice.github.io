@@ -1,9 +1,9 @@
 const { json } = require('micro')
 const serve = parser => handler => async (req, res) => {
   try {
-    return handler(await parser(req))
+    res.end(JSON.stringify(await handler(await parser(req))))
   } catch (err) {
-    return { error: err.toString() }
+    return res.end(`{"error":${JSON.stringify(err.message)}}`)
   }
 }
 
