@@ -26,5 +26,9 @@ const encodeId = id =>
 
 module.exports.invoices = {
   set: async data => encodeId((await (await db).insertOne(data)).insertedId),
-  get: async id => (await db).findOne(new ObjectID(decodeId(id))),
+  get: async id => {
+    const data = await (await db).findOne(new ObjectID(decodeId(id)))
+    data._id = undefined
+    return data
+  },
 }
