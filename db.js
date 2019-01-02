@@ -1,6 +1,6 @@
 const { MongoClient, ObjectID } = require('mongodb')
 const user = {
-  name: process.env.DBNAME,
+  name: process.env.DBUSER,
   pass: process.env.DBPASS,
 }
 

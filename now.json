@@ -31,8 +31,8 @@
     }
   ],
   "env": {
-    "DBUSER": "dbuser",
-    "DBPASS": "dbpass",
-    "DBURL": "dburl"
+    "DBUSER": "@dbuser",
+    "DBPASS": "@dbpass",
+    "DBURL": "@dburl"
   }
 }
