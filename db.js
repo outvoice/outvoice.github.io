@@ -14,7 +14,7 @@ const db = MongoClient.connect(
   return client.db('outvoice').collection('invoices')
 })
 
-const toHex = n => n.toString(16)
+const toHex = n => n.toString(16).padStart(2, '0')
 const fromHex = s => parseInt(s, 16)
 const decodeId = id => [...Buffer.from(id, 'base64')].map(toHex).join('')
 const encodeId = id =>
