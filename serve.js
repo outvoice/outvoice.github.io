@@ -2,7 +2,7 @@ const { json } = require('micro')
 const { URLSearchParams } = require('url')
 const serve = parser => handler => async (req, res) => {
   try {
-    res.end(JSON.stringify(await handler(await parser(req))))
+    res.end(`{"data":${JSON.stringify(await handler(await parser(req)))}}`)
   } catch (err) {
     return res.end(`{"error":${JSON.stringify(err.message)}}`)
   }
