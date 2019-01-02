@@ -1,4 +1,5 @@
 const { json } = require('micro')
+const { URLSearchParams } = require('url')
 const serve = parser => handler => async (req, res) => {
   try {
     res.end(JSON.stringify(await handler(await parser(req))))
@@ -9,8 +10,10 @@ const serve = parser => handler => async (req, res) => {
 
 module.exports.json = serve(json)
 module.exports.url = serve(req => {
+  const [, search] = req.url.split('?')
   const params = {}
-  for (const [k, v] of new URLSearchParams(new URL(req.url).search)) {
+  if (!search) return params
+  for (const [k, v] of new URLSearchParams(search)) {
     params[k] = v
   }
   return params
