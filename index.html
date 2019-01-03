@@ -4,15 +4,13 @@
   <title>Outvoice</title>
   <meta charset="utf-8">
   <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA////AN3V1QDo4+MA/4CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADMiIiIiMwADNERERERDMAMkIiIiIkIwAyQyMjIyQjADJBMTExNCMAMkMTExMUIwAyQRERERQjADJBMTExNCMAMkEREREUIwAyQxMTIyQjADJBERRERDMAMkERFBFCMwAyQREUFCMzADJBERRCMzMAM0RERCMzMwADMiIjMzMwDAAwAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAADAAwAA" rel="icon" type="image/x-icon" />
+  <link id="api" rel="dns-prefetch" href="https://outvoicegithubio-6q16iqgki.now.sh">
 <style type="text/css">
 * { user-select: none }
 html {
   padding: 0 8px;
   background-color: hsl(240, 10%, 90%);
   color: hsl(240, 30%, 50%);
-}
-
-body {
 }
 
 body, textarea, input, pre, a {
@@ -229,14 +227,17 @@ button:active { color: hsl(240, 100%, 50%) }
 
       <div style="flex-grow: 1">
         <h2>Outputs</h2>
+        <h3>Save As</h3>
         <ul>
           <li><a id="link-text" download="file.txt">te<b>x</b>t</a></li>
           <li><a id="link-pdf" download="file.pdf">pd<b>f</b></a></li>
-          <li><a id="link-link" href="#"><b>l</b>ink</a></li>
-          <li><a id="link-link-edit" href="#">lin<b>k</b></a> <i>editable</i></li>
-          <li><a id="link-email" href="mailto:">e<b>m</b>ail</a></li>
-          <li><a id="link-print" href="#">p<b>r</b>int</a></li>
-          <li><a id="link-copy" href="#"><b>c</b>opy</a></li>
+        </ul>
+        <h3>Copy As</h3>
+        <ul>
+          <li><a id="link-copy" href="#"><b>t</b>ext</a></li>
+          <li><a id="link-link-short" href="#"><b>s</b>hort link</a> <a href="#link-short-detail"><i>*</i></li>
+          <li><a id="link-link" href="#">long <b>l</b>ink</a></li>
+          <li><a id="link-link-edit" href="#">long lin<b>k</b></a> <i>editable</i></li>
         </ul>
       </div>
 
@@ -248,6 +249,13 @@ button:active { color: hsl(240, 100%, 50%) }
     </div>
   </div>
 
+  <div>
+    <span id="link-short-detail">short-link:</span>
+    <span>
+      by using the this option you allow us to keep your data (in clear) and accept that
+      <code>outvoice.github.io</code> provide 0 garanties of availability of the data.
+    </span>
+  </div>
 
 
 
@@ -364,7 +372,6 @@ const exec = (subs, value) => {
   catch (err) { console.error('Unhandled:', err.stack) }
 }
 
-const __ = _ => _
 const stated = (id, defaultValue, opts) => {
   const elem = getById(id)
   const { get, set, persist, parse, compare, compareRaw } = {
@@ -523,25 +530,6 @@ ${getList(items)}
                                                --------------------------------
 ` ].join('')
 
-const normalizeSpaces = str => str.replace(/ +/g, ' ')
-const formatInvoiceFluid =  ({ header, separator, body, items, due, date }) => [
-  normalizeSpaces(header),
-  formatDate(date),
-  normalizeSpaces(separator),
-  formatDate(date, due),
-  normalizeSpaces(body), `> ITEMS
-${items.map(({ description, price = 0, qty = 1, vat = 0 }) => [
-  description,
-  ' - ',
-  `${price} EURO`,
-  vat && ` (${vat}% VAT)`,
-  qty > 2 && ` x${qty}`,
-].filter(Boolean).join('')).join('\n')}
-
-> TOTAL
-${getTotalExcl(items).trim()} ${getTotalVat(items).trim()} (VAT)
-${getTotalIncl(items).trim().replace(':', '')}` ].join('')
-
 const trim = s => s.trim()
 const pad2 = n => String(n).padStart(2, '0')
 const getId = date => {
@@ -602,6 +590,7 @@ try {
 // ELEMENTS
 const persistance = urlData.persistance || { persist: true }
 const defaultDate = urlData.date || new Date
+const apiURL = getById('api').href
 const invoicePre = getById('invoice')
 const addButton = getById('add')
 const descriptionState = stated('description', urlData.description || 'Software Development')
@@ -706,19 +695,6 @@ vatState.sub(regenEditLink)
 priceState.sub(regenEditLink)
 descriptionState.sub(regenEditLink)
 
-invoiceState.sub(hyperLink('link-email', () => {
-  const textFuild = formatInvoiceFluid(invoiceState.get())
-  const emails = textFuild.split(/(\S+@\S+\.\S+)/g).filter((_, i) => i % 2)
-  const subject = textFuild.trim().split('\n').filter(Boolean)[0]
-
-  return `mailto:${emails[emails.length-1]
-    }?subject=${encodeURIComponent(subject)
-    }&body=${encodeURIComponent(textFuild)}`
-}))
-
-getById('link-print').addEventListener('click', e => window.print())
-getById('link-copy').addEventListener('click', copy)
-
 invoiceState.sub(() => invoicePre.textContent = textarea.value)
 dueState.sub(due => invoiceState.set({ ...invoiceState.get(), due }))
 dateState.sub(date => invoiceState.set({ ...invoiceState.get(), date }))
@@ -758,8 +734,7 @@ const selectors = {
   m: eventOpen(getById('link-email')),
   l: eventOpen(getById('link-link')),
   k: eventOpen(getById('link-link-edit')),
-  r: eventOpen(getById('link-print')),
-  c: copy,
+  t: copy,
 }
 
 const getLineAt = (text, pos) => {
@@ -789,9 +764,8 @@ textarea.addEventListener('copy', e => {
 
   const text = textarea.value
   const { start, end } = getLineAt(text, textarea.selectionEnd)
-  e.clipboardData.setData('text/plain', start === end
-    ? '\n'
-    : text.slice(start, end))
+  const data = start === end ? '\n' : text.slice(start, end)
+  e.clipboardData.setData('text/plain', data)
 })
 
 textarea.addEventListener('cut', e => {
@@ -800,8 +774,6 @@ textarea.addEventListener('cut', e => {
 
   const pos = textarea.selectionEnd
   const { start, end } = getLineAt(textarea.value, pos)
-  const text = textarea.value.slice(start, end)
-  e.clipboardData.setData('text/plain', start === end ? '\n' : text)
 
   textarea.setSelectionRange(start, start === end ? end + 1 : end)
   document.execCommand('cut')
@@ -865,9 +837,13 @@ addEventListener('wheel', e => {
  * - proper table markers
  * - show error to users
  * - ascii only ?
+ cursor not properly restaured on past
  check si link cree des leaks
  user help
- legacy version
+ import dates back
+ check how i can insert now.sh api url automatically
+ and generate legacy version
+ on commit
  */
 
 </script>
