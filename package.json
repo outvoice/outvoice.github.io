@@ -1,7 +1,15 @@
 {
   "private": true,
+  "scripts": {
+    "build": "NODE_NO_WARNINGS=1 node build.js"
+  },
   "dependencies": {
     "micro": "^9.3.3",
     "mongodb": "^3.1.10"
+  },
+  "devDependencies": {
+    "execa": "^1.0.0",
+    "html-minifier": "^3.5.21",
+    "terser": "^3.14.1"
   }
 }
