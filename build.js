@@ -7,10 +7,10 @@ const { minify } = require('html-minifier')
 const Terser = require('terser')
 
 console.log('hosting on now...')
-//Promise.resolve({ stdout: 'htttps://outvoicegithubio-POUETPOUET.now.sh' })
 execa('now')
   .then(async ({ stdout: url }) => {
     console.log('hosted at', url)
+
     console.log('minifing...')
     const minified = minify(await file, {
       caseSensitive: false,
@@ -43,18 +43,21 @@ execa('now')
       trimCustomFragments: true,
       useShortDoctype: true,
     })
-    const len = console.log(
+    console.log(
       `index.html: ${(minified.length / 1000).toFixed(2)}kb (${(
         ((await file).length - minified.length) /
         1000
       ).toFixed(2)}kb saved)`,
     )
+
     const content = minified.replace(matchURL, url)
     await fs.writeFile('index.html', content, 'utf8')
+
     console.log('deploy on github pages')
     await execa('git', ['add', 'index.html'])
     await execa('git', ['commit', '-m', 'generate optimised index.html'])
     await execa('git', ['push'])
+
     console.log('done !')
   })
   .catch(err => {
