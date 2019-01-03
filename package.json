@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "deploy": "NODE_NO_WARNINGS=1 node deploy.js",
     "build": "NODE_NO_WARNINGS=1 node build.js"
   },
   "dependencies": {
