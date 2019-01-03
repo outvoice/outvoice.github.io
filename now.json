@@ -4,6 +4,7 @@
     { "src": "set.js", "use": "@now/node" },
     { "src": "get.js", "use": "@now/node" }
   ],
+  "github": { "enabled": false },
   "routes": [
     {
       "src": "/",
