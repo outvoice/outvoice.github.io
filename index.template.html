@@ -79,7 +79,7 @@ b { color: black }
 a { color: hsl(240, 70%, 50%); text-decoration: none }
 a:hover, a:focus { text-decoration: underline }
 li:before { content: '> ' }
-ul { list-style-type: none; padding-left: 1em }
+ul { list-style-type: none; padding-left: 1em; margin-top: 4px }
 hr { height: 0; border: none }
 
 /* inputs */
@@ -149,6 +149,10 @@ pre {
   margin: 0 auto;
   opacity: 0;
   transition: opacity 0.5s ease;
+}
+#info {
+  width: 80ch;
+  margin: 0 auto;
 }
 
 /* interactions */
@@ -249,7 +253,7 @@ button:active { color: hsl(240, 100%, 50%) }
     </div>
   </div>
 
-  <div>
+  <div id="info">
     <span id="link-short-detail">short-link:</span>
     <span>
       by using the this option you allow us to keep your data (in clear) and accept that
