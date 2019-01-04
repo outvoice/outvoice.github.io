@@ -11,6 +11,7 @@
       "methods": ["POST", "OPTIONS"],
       "headers": {
         "content-type": "application/json",
+        "access-control-allow-headers": "*",
         "access-control-allow-methods": "POST, OPTIONS",
         "access-control-allow-origin": "https://outvoice.github.io"
       },
@@ -22,6 +23,7 @@
       "headers": {
         "content-type": "application/json",
         "cache-control": "public, max-age=604800, s-maxage=604800",
+        "access-control-allow-headers": "*",
         "access-control-allow-methods": "GET, OPTIONS",
         "access-control-allow-origin": "https://outvoice.github.io"
       },
