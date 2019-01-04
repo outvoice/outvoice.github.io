@@ -440,6 +440,7 @@ const stated = (id, defaultValue, opts) => {
     then: init.then.bind(init),
     catch: init.catch.bind(init),
     set: value => apply(value),
+    reset: () => apply(defaultValue),
     getRaw: () => _rawValue,
     get: () => _value,
     once: (fn, s) => s = subs.delete(v => s(fn(v))),
@@ -580,8 +581,10 @@ const parseInvoiceText = (value, prev) => {
 
 // HANDLE DISPLAY MODE
 let urlData = {}
+let loadId
 try {
   const params = new URLSearchParams(window.location.search)
+  loadId = params.get('id')
   if (params.get('data')) {
     urlData = decodeData(params.get('data'))
     urlData.date = new Date(urlData.date)
