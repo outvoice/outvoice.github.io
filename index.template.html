@@ -229,15 +229,15 @@ button:active { color: hsl(240, 100%, 50%) }
         <h2>Outputs</h2>
         <h3>Save As</h3>
         <ul>
-          <li><a id="link-text" download="file.txt">te<b>x</b>t</a></li>
-          <li><a id="link-pdf" download="file.pdf">pd<b>f</b></a></li>
+          <li><a id="save-text" download="file.txt">te<b>x</b>t</a></li>
+          <li><a id="save-pdf" download="file.pdf">pd<b>f</b></a></li>
         </ul>
         <h3>Copy As</h3>
         <ul>
-          <li><a id="link-copy" href="#"><b>t</b>ext</a></li>
-          <li><a id="link-link-short" href="#"><b>s</b>hort link</a> <a href="#link-short-detail"><i>*</i></li>
-          <li><a id="link-link" href="#">long <b>l</b>ink</a></li>
-          <li><a id="link-link-edit" href="#">long lin<b>k</b></a> <i>editable</i></li>
+          <li><a id="copy-text" href="#"><b>t</b>ext</a></li>
+          <li><a id="copy-link-short" href="#"><b>s</b>hort-link</a> <i>*</i></li>
+          <li><a id="copy-link" href="#">data-<b>l</b>ink</a> <i>long</i></li>
+          <li><a id="copy-link-edit" href="#">data-lin<b>k</b></a> <i>editable</i></li>
         </ul>
       </div>
 
@@ -671,13 +671,12 @@ const addItem = () => invoiceState.set({
   ],
 })
 
-invoiceState.sub(hyperLink('link-text', () =>
+invoiceState.sub(hyperLink('save-text', () =>
   makeFile(textarea.value, 'txt', 'plain/text')))
 
-invoiceState.sub(hyperLink('link-pdf', () =>
+invoiceState.sub(hyperLink('save-pdf', () =>
   makeFile(toPDF(textarea.value),  'pdf', 'application/pdf')))
  
-invoiceState.sub(hyperLink('link-link', () =>
   `${baseUrl}?data=${encodeData(invoiceState.get())}`))
 
 const regenEditLink = hyperLink('link-link-edit', () =>
@@ -729,11 +728,11 @@ const selectors = {
   n: eventSelect(textarea),
   '+': addItem,
   '=': addItem,
-  x: eventOpen(getById('link-text')),
-  f: eventOpen(getById('link-pdf')),
-  m: eventOpen(getById('link-email')),
-  l: eventOpen(getById('link-link')),
-  k: eventOpen(getById('link-link-edit')),
+  x: eventOpen(getById('save-text')),
+  f: eventOpen(getById('save-pdf')),
+  l: eventOpen(getById('copy-link')),
+  s: eventOpen(getById('copy-link-save')),
+  k: eventOpen(getById('copy-link-edit')),
   t: copy,
 }
 
