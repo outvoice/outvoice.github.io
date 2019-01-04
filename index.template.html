@@ -459,11 +459,17 @@ const hyperLink = (id, generate) => {
   let _update
 
   const apply = e => {
-    _update && (a.href = generate())
+    if (!_update) return
     _update = undefined
+    const result = generate()
+    if (result && !result.then) {
+      a.href = result
+    } else {
+      e.preventDefault()
+    }
   }
 
-  a.addEventListener('mouseenter', apply, { passive: true })
+  a.addEventListener('click', apply, { passive: true })
 
   a.open = mod => {
     apply()
@@ -662,6 +668,7 @@ const isFocused = elem => document.activeElement === elem
 const baseUrl = `${window.location.origin}${window.location.pathname}`
 
 const copy = () => navigator.clipboard.writeText(textarea.value)
+const copyLink = url => navigator.clipboard.writeText(`${baseUrl}?${url}`)
 const addItem = () => invoiceState.set({
   ...invoiceState.get(),
   items: [
@@ -681,16 +688,29 @@ invoiceState.sub(hyperLink('save-text', () =>
 invoiceState.sub(hyperLink('save-pdf', () =>
   makeFile(toPDF(textarea.value),  'pdf', 'application/pdf')))
  
-  `${baseUrl}?data=${encodeData(invoiceState.get())}`))
+invoiceState.sub(hyperLink('copy-link', () =>
+  copyLink(`data=${encodeData(invoiceState.get())}`)))
 
-const regenEditLink = hyperLink('link-link-edit', () =>
-  `${baseUrl}?edit&data=${encodeData({
+invoiceState.sub(hyperLink('copy-link-short', async () => {
+  const res = await fetch(apiURL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(invoiceState.get())
+  })
+  const { data, error } = await res.json()
+  return error
+    ? console.error('Error while getting link:', error)
+    : copyLink(`id=${data.id}`)
+}))
+
+const regenEditLink = hyperLink('copy-link-edit', () =>
+  copyLink(`edit&data=${encodeData({
     description: descriptionState.get(),
     price: priceState.get(),
     qty: qtyState.get(),
     vat: vatState.get(),
     ...invoiceState.get(),
-  })}`)
+  })}`))
 
 invoiceState.sub(regenEditLink)
 qtyState.sub(regenEditLink)
@@ -708,7 +728,16 @@ events.add(() => {
   document.body.classList.toggle('hide-shortcuts', hide)
 })
 
-Promise.all(states)
+Promise.all(states
+  .map(state => state.catch(err => {
+    console.error('Error loading state', state.id, err.stack)
+    return state.reset()
+  }))
+  .concat(loadId && fetch(`${apiURL}${loadId}`).then(async res => {
+    const { data, error } = res.json()
+    if (error) return console.error('unable to load id', loadId, error)
+    return invoiceState.set(data)
+  })))
   .then(loop)
   .then(() => getById('content').style.opacity = 1)
 
