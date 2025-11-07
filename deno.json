@@ -1,0 +1,21 @@
+{
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "semiColons": false,
+    "singleQuote": true,
+  },
+  "lock": false,
+  "lint": {
+    "rules": {
+      "exclude": ["no-import-prefix", "no-unversioned-import"]
+    },
+  },
+  "imports": {
+    "./": "./",
+    "/": "./",
+  },
+  "tasks": {
+  }
+}

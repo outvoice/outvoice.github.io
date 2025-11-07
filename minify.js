@@ -1,7 +1,5 @@
-const fs = require('fs').promises
-const matchURL = /https:\/\/[^.]+\.now\.sh/
-const { minify } = require('html-minifier')
-const Terser = require('terser')
+import { minify as minifyJS } from 'npm:terser'
+import { minify as minifyHTML } from 'npm:html-minifier-next'
 
 const toKB = n => `${(n / 1000).toFixed(2)}kb`
 const minifyOpts = {
@@ -16,7 +14,7 @@ const minifyOpts = {
   keepClosingSlash: false,
   maxLineLength: false,
   minifyCSS: true,
-  minifyJS: js => Terser.minify(js).code,
+  minifyJS: async js => (await minifyJS(js)).code,
   minifyURLs: true,
   preserveLineBreaks: false,
   preventAttributesEscaping: true,
@@ -36,23 +34,14 @@ const minifyOpts = {
   useShortDoctype: true,
 }
 
-module.exports.minify = async ({
-  src = 'index.template.html',
-  dest = 'index.html',
-  url,
-  silent,
-  ...opts
-} = {}) => {
-  const file = await fs.readFile(src, 'utf8')
-  const minified = minify(file, { ...minifyOpts, ...opts })
+export const minify = async () => {
+  const file = await Deno.readTextFile('index.html')
+  const content = await minifyHTML(file, minifyOpts)
+  console.log(
+    `index.html: ${toKB(content.length)}`,
+    `(${toKB(file.length - content.length)} saved)`,
+  )
 
-  silent ||
-    console.log(
-      `${dest}:`,
-      `${toKB(minified.length)}`,
-      `(${toKB(file.length - minified.length)} saved)`,
-    )
-
-  const content = url ? minified.replace(matchURL, url) : minified
-  return fs.writeFile(dest, content, 'utf8')
+  await Deno.mkdir('build', { recursive: true })
+  return Deno.writeTextFile('build/index.html', content)
 }

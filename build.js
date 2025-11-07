@@ -1,7 +1,3 @@
-const execa = require('execa')
-const { minify } = require('./minify.js')
+import { minify } from './minify.js'
 
-minify().catch(err => {
-  console.error(err)
-  process.exit(1)
-})
+await minify()

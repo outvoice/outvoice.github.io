@@ -1,1 +1,875 @@
-<!doctypehtml>  <head> <title>Outvoice</title> <meta charset=utf-8> <link href=data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA////AN3V1QDo4+MA/4CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADMiIiIiMwADNERERERDMAMkIiIiIkIwAyQyMjIyQjADJBMTExNCMAMkMTExMUIwAyQRERERQjADJBMTExNCMAMkEREREUIwAyQxMTIyQjADJBERRERDMAMkERFBFCMwAyQREUFCMzADJBERRCMzMAM0RERCMzMwADMiIjMzMwDAAwAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAADAAwAA rel=icon type=image/x-icon> <link href=https://outvoicegithubio-3s6sdumiz.now.sh rel=dns-prefetch id=api> <style>*{user-select:none}html{padding:0 8px;background-color:#e2e2e8;color:#5959a5}a,body,input,pre,textarea{font-family:'SF Mono',Monaco,Inconsolata,'Fira Mono','Droid Sans Mono','Source Code Pro',monospace}h1,h2,h3{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol'}h1{font-size:70px;text-align:center;color:#b7b7e0;font-style:italic;letter-spacing:-2px;position:fixed;bottom:0;width:100%}h1 span{color:#c6c6d1;font-weight:100;letter-spacing:0}h2{position:relative}h2:after{content:'';width:calc(100% - 24px);height:16px;z-index:-1;background-color:#d4d4dc;position:absolute;top:55%;left:12px}h3{font-size:16px;font-variant:small-caps;letter-spacing:2px;margin-bottom:4px}b{color:#000}a{color:#2626d8;text-decoration:none}a:focus,a:hover{text-decoration:underline}li:before{content:'> '}ul{list-style-type:none;padding-left:1em;margin-top:4px}hr{height:0;border:none}label{margin-right:16px}input[type=number]{width:6ch}input{color:#000;background-color:#efefff}button,input{padding:6px 8px;font-size:16px;border:3px solid #d4d4dc;border-radius:5px}button{color:#000;border-color:#d4d4dc;background-color:#d4d4dc;font-weight:700;letter-spacing:1px;line-height:17px}pre,textarea{font-size:16px;width:80ch;top:0;color:#000;cursor:text;padding:2ch;border-width:0;overflow:hidden}textarea{opacity:0;height:calc(100% - 4ch);background-color:#fff;position:absolute;resize:none;box-shadow:10px 7px 20px 12px rgba(0,0,0,.04),-10px 7px 20px 12px rgba(0,0,0,.04),0 4px 13px 4px rgba(0,0,0,.2)}pre{background-color:rgba(255,255,255,.75);box-shadow:5px 5px 10px 6px rgba(0,0,0,.03),-5px 5px 10px 6px rgba(0,0,0,.03),0 2px 6px 3px rgba(0,0,0,.1)}#invoice-wrapper{position:relative}#content{width:672px;width:84ch;margin:0 auto;opacity:0;transition:opacity .5s ease}#info{width:80ch;margin:0 auto}button:hover,input:hover{border-color:#000}textarea:active,textarea:focus,textarea:hover{opacity:1}input:focus{background-color:#f9f9ff}button:focus{color:#7f7fff}button:focus,input:focus{border-color:#7f7fff;outline:0}button:active,input:active{border-color:#00f}button:active{color:#00f}.hide-shortcuts b{color:inherit;font-weight:inherit}.display-mode,.display-mode *{box-shadow:none!important;background:#fff}.display-mode *{display:none;user-select:text}#content,#invoice-wrapper,.display-mode pre,body{display:block!important}@media print{*{display:none}*{box-shadow:none!important;background:#fff}#content,#invoice-wrapper,body,html,pre{display:block!important}}@supports (-moz-appearance:none){textarea{top:-1px}}</style> </head> <body> <h1>Outvoice<span>.github.io</span></h1> <div id=content> <div style=display:flex> <div> <h2>Inputs</h2> <h3>Items</h3> <label> <span><b>d</b>escription</span> <input id=description style=width:38ch maxlength=37> </label> <hr> <label> <span><b>p</b>rice</span> <input id=price type=number max=9999999 min=0> </label> <label> <span><b>q</b>ty</span> <input id=qty type=number max=9999 min=0> </label> <label style=margin-right:0> <span><b>v</b>at</span> <input id=vat type=number max=99 min=0> </label> <button id=add> + </button> <h3>D<b>a</b>te</h3> <label> <input id=date type=date> </label> <label> <span>due <b>i</b>n</span> <input id=due type=number max=999 min=0> days </label> </div> <div style=flex-grow:1> <h2>Outputs</h2> <h3>Save As</h3> <ul> <li><a id=save-text download=file.txt>te<b>x</b>t</a></li> <li><a id=save-pdf download=file.pdf>pd<b>f</b></a></li> </ul> <h3>Copy As</h3> <ul> <li><a id=copy-text href=#><b>t</b>ext</a></li> <li><a id=copy-link-short href=#><b>s</b>hort-link</a> <i>*</i></li> <li><a id=copy-link href=#>data-<b>l</b>ink</a> <i>long</i></li> <li><a id=copy-link-edit href=#>data-lin<b>k</b></a> <i>editable</i></li> </ul> </div> </div> <div id=invoice-wrapper> <textarea id=invoice-text tabindex=1></textarea> <pre id=invoice></pre> </div> </div> <div id=info> <span id=link-short-detail>short-link:</span> <span> by using the this option you allow us to keep your data (in clear) and accept that <code>outvoice.github.io</code> provide 0 garanties of availability of the data. </span> </div> <script>const getById=e=>document.getElementById(e),makeFile=(e,t,a)=>{const n=new File([e],`outvoice.${t}`,{type:a});return URL.createObjectURL(n)},replacer=(e,t)=>(t=>a=>a.replace(e,t))(e=>t[e]),urlSafeEncode=replacer(/[+\/=]/g,{"+":"-","/":"_","=":"."}),urlSafeDecode=replacer(/[-_.]/g,{"-":"+",_:"/",".":"="}),pdfEscape=replacer(/[()\\]/g,{"(":"\\(","\\":"\\\\",")":"\\)"}),encodeData=e=>urlSafeEncode(btoa(JSON.stringify(e))),decodeData=e=>JSON.parse(atob(urlSafeDecode(e))),toPDF=e=>`%PDF-1.5\n1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj\n2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj\n3 0 obj <</Type /Page /Parent 2 0 R /Resources 4 0 R /MediaBox [0 0 595 842] /Contents 6 0 R>> endobj\n4 0 obj <</Font <</F1 5 0 R>>>> endobj\n5 0 obj <</Type /Font /Subtype /Type1 /BaseFont /Courier New, Courier>> endobj\n6 0 obj <</Length 7680>> stream\n  BT\n  /F1 11 Tf\n  26 795 Td\n  18 TL\n  ${e.split("\n").map((e,t)=>`(${pdfEscape(e)}) ${t?"'":"Tj"}`).join("\n  ")}\n  ET\nendstream endobj\n\nxref\n0 7\n0000000000 65535 f\n0000000009 00000 n\n0000000059 00000 n\n0000000116 00000 n\n0000000219 00000 n\n0000000259 00000 n\n0000000328 00000 n\n\ntrailer <</Size 7/Root 1 0 R>>\n\nstartxref\n454\n%%EOF`,idb=(()=>{const e=new Promise((e,t)=>{const a=window.indexedDB.open("use-idb",1);a.onerror=(()=>t(a.error)),a.onsuccess=(()=>e(a.result)),a.onupgradeneeded=(()=>a.result.createObjectStore("idb"))}),t=async(t,a,...n)=>{const o=(await e).transaction("idb",t),r=o.objectStore("idb");return new Promise((e,t)=>{const i=r[a](...n);o.oncomplete=(()=>e(i)),o.onabort=o.onerror=(()=>t(o.error))})};return{get:async e=>(await t("readonly","get",e)).result,set:(e,a)=>void 0===a?t("readwrite","delete",e):t("readwrite","put",a,e)}})(),handlers={get:e=>e.value,set:(e,t)=>e.value=t,parse:e=>e,compare:(e,t)=>e===t,compareRaw:(e,t)=>e===t,persist:!0,INPUTnumber:{get:e=>e.valueAsNumber,set:(e,t)=>e.valueAsNumber=Number(t)},INPUTdate:{compare:(e,t)=>e&&t&&e.getTime()===t.getTime(),compareRaw:(e,t)=>e&&t&&e.getTime()===t.getTime(),get:e=>e.valueAsDate,set:(e,t)=>e.valueAsDate=new Date(t)}},events=new Set,loop=()=>{for(const e of events)e();setTimeout(()=>requestAnimationFrame(loop))},exec=(e,t)=>{try{for(const a of e)a(t)}catch(e){console.error("Unhandled:",e.stack)}},stated=(e,t,a)=>{const n=getById(e),{get:o,set:r,persist:i,parse:s,compare:c,compareRaw:d}={...handlers,...handlers[n.tagName+n.type],...a},l=new Set,p=new Set;let u,m,v,g,S;const y=e=>c(e,u)?e:v=e;events.add(()=>{const t=document.activeElement===n;if(t){const t=o(n);if(null===t)return;if(!d(g,t))try{y(s(t,u)),m=!1,g=t}catch(a){return console.log("failed to parse new input value for state",e),console.log(t),console.warn(a.stack),m=!0,r(n,u),void setTimeout(exec,0,p,a)}}else if(S)return S=!1,r(n,u),void setTimeout(exec,0,l,u);m||void 0!==v&&(u=v,v=void 0,setTimeout(exec,0,l,u),t?S=!0:r(n,u),i&&idb.set(e,u).catch(console.error))});const f=i?idb.get(e).then(e=>y(e||t)):Promise.resolve().then(()=>y(t));return{elem:n,then:f.then.bind(f),catch:f.catch.bind(f),set:e=>y(e),reset:()=>y(t),getRaw:()=>g,get:()=>u,once:(e,t)=>t=l.delete(a=>t(e(a))),sub:(e,t)=>("function"==typeof e&&l.add(e),"function"==typeof t&&p.add(t),()=>{l.delete(e),p.delete(t)})}},hyperLink=(e,t)=>{const a=getById(e);let n;const o=e=>{if(!n)return;n=void 0;const o=t();o&&!o.then?a.href=o:e.preventDefault()};return a.addEventListener("click",o,{passive:!0}),a.open=(e=>{o(),a.dispatchEvent(new MouseEvent("click",{ctrlKey:e,metaKey:e}))}),()=>n=!0},PADS={description:37,subtotal:9,total:22,price:8,qty:4,vat:4,no:3},padAll=e=>Object.keys(e).map(t=>Number(e[t])==e[t]?String(e[t]).padStart(PADS[t]||0," "):` ${String(e[t]).padEnd(PADS[t]-1||0," ")}`),getTotalExcl=e=>`(excl tax) ${Math.ceil(e.reduce((e,{price:t,qty:a})=>t*a+e,0))}`.padStart(PADS.total," "),getTotalVat=e=>`+ ${e.reduce((e,{price:t,qty:a,vat:n})=>t*(n/100)*a+e,0).toFixed(2)}`.padStart(PADS.total," "),getTotalIncl=e=>`(incl tax): ${e.reduce((e,{price:t,qty:a,vat:n})=>(t+t*(n/100))*a+e,0).toFixed(2)} EURO`.padEnd(36," "),getList=e=>e.map(({description:e,price:t=0,qty:a=1,vat:n=0},o)=>padAll({no:String(o+1).padStart(2,"0"),description:e,price:`${t}`,qty:a,vat:n,subtotal:`${t*a}`}).join(" |")).map(e=>`  |${e} |`).join("\n"),formatInvoiceFixed=({header:e,separator:t,body:a,items:n,due:o,date:r})=>[e,formatDate(r),t,formatDate(r,o),a,`\n        -----------------------------------------------------------------------\n       | DESCRIPTION                          |  PRICE  | QTY | VAT | SUBTOTAL |\n   ............................................................................|\n${getList(n)}\n   -------------------------------------------|................................|\n                                              |         ${getTotalExcl(n)} |\n> TOTAL ${getTotalIncl(n)}  |         ${getTotalVat(n)} |\n                                               --------------------------------\n`].join(""),trim=e=>e.trim(),pad2=e=>String(e).padStart(2,"0"),getId=e=>{const t=pad2(e.getMonth()+1),a=e.getFullYear();return[t,a,String(localStorage[t+a]||1).padStart(3,"0")].join("-")},formatDate=(e,t=0)=>{const a=new Date(e.getFullYear(),e.getMonth(),e.getDate()+t);return[a.getDate(),a.getMonth()+1,a.getFullYear()].map(pad2).join("/")},parseItemLine=e=>{const t=e.split("|").map(trim).filter(Boolean);return{description:t[1],price:Number(t[2]),qty:Number(t[3]),vat:Number(t[4])}},parseInvoiceText=(e,t)=>{const[,a,n,o,r]=e.split(/([^]*?)\d+\/\d+\/\d+([^]*?)\d+\/\d+\/\d+([^]*?)\n.+\n.+\| DESCRIPTION.+ \|\n.+([^]*?)\n   -/);return{...t,header:a,separator:n,body:o,items:r.trim().split("\n").filter(trim).map(parseItemLine)}};let loadId,urlData={};try{const e=new URLSearchParams(window.location.search);if(loadId=e.get("id"),e.get("data")){(urlData=decodeData(e.get("data"))).date=new Date(urlData.date);const t=e.has("edit");urlData.persistance={override:t,persist:t},t||document.documentElement.classList.add("display-mode")}}catch(e){console.log("Error loading url",window.location.search),console.log(e)}const persistance=urlData.persistance||{persist:!0},defaultDate=urlData.date||new Date,apiURL=getById("api").href,invoicePre=getById("invoice"),addButton=getById("add"),descriptionState=stated("description",urlData.description||"Software Development"),priceState=stated("price",urlData.price||400),qtyState=stated("qty",urlData.qty||1),vatState=stated("vat",urlData.vat||"0"),dueState=stated("due",urlData.due||7,persistance),dateState=stated("date",defaultDate,{persist:!1}),invoiceState=stated("invoice-text",{header:`# Invoice ${getId(defaultDate)}\n\nCreated `,date:defaultDate,separator:" - Due ",due:urlData.due||7,body:"\n\n> FROM\n  NAME     Clark Kent\n  ADDRESS  66 rue Wonder Woman - 99000 Metropolis - FRANCE\n  EMAIL    email@gmail.com\n  PHONE    +33601020304\n  SIRET    88776655400000\n  IBAN     FR76167980000000000000000000\n  BIC      TRZOFR21XXX\n\n> BILLED TO\n  NAME     SUPERMAN INC\n  ADDRESS  66 rue Wonder Woman - 99000 Metropolis - FRANCE\n  EMAIL    superman@dc.comics\n  VAT      101010101\n\n",items:[{description:"Software Development",price:400,qty:1,vat:0},{description:"Some License",price:27,qty:3,vat:20}],...urlData},{...persistance,parse:parseInvoiceText,set:(e,t)=>e.value=formatInvoiceFixed(t)}),states=[descriptionState,priceState,qtyState,vatState,dateState,dueState,invoiceState],textarea=invoiceState.elem,selections=[...states.slice(0,4),addButton,...states.slice(4)].map(e=>e.elem||e),inputs=selections.filter(e=>e!==addButton),isFocused=e=>document.activeElement===e,baseUrl=`${window.location.origin}${window.location.pathname}`,copy=()=>navigator.clipboard.writeText(textarea.value),copyLink=e=>navigator.clipboard.writeText(`${baseUrl}?${e}`),addItem=()=>invoiceState.set({...invoiceState.get(),items:[...invoiceState.get().items,{description:descriptionState.get(),price:priceState.get(),qty:qtyState.get(),vat:vatState.get()}]});invoiceState.sub(hyperLink("save-text",()=>makeFile(textarea.value,"txt","plain/text"))),invoiceState.sub(hyperLink("save-pdf",()=>makeFile(toPDF(textarea.value),"pdf","application/pdf"))),invoiceState.sub(hyperLink("copy-link",()=>copyLink(`data=${encodeData(invoiceState.get())}`))),invoiceState.sub(hyperLink("copy-link-short",async()=>{const e=await fetch(apiURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(invoiceState.get())}),{data:t,error:a}=await e.json();return a?console.error("Error while getting link:",a):copyLink(`id=${t.id}`)}));const regenEditLink=hyperLink("copy-link-edit",()=>copyLink(`edit&data=${encodeData({description:descriptionState.get(),price:priceState.get(),qty:qtyState.get(),vat:vatState.get(),...invoiceState.get()})}`));invoiceState.sub(regenEditLink),qtyState.sub(regenEditLink),vatState.sub(regenEditLink),priceState.sub(regenEditLink),descriptionState.sub(regenEditLink),invoiceState.sub(()=>invoicePre.textContent=textarea.value),dueState.sub(e=>invoiceState.set({...invoiceState.get(),due:e})),dateState.sub(e=>invoiceState.set({...invoiceState.get(),date:e})),addButton.addEventListener("click",addItem),events.add(()=>{const e=!document.hasFocus()||inputs.some(isFocused);document.body.classList.toggle("hide-shortcuts",e)}),Promise.all(states.map(e=>e.catch(t=>(console.error("Error loading state",e.id,t.stack),e.reset()))).concat(loadId&&fetch(`${apiURL}${loadId}`).then(async e=>{const{data:t,error:a}=e.json();return a?console.error("unable to load id",loadId,a):invoiceState.set(t)}))).then(loop).then(()=>getById("content").style.opacity=1);const eventOpen=e=>t=>e.open(t.shiftKey),eventSelect=e=>t=>{e.focus(),t.shiftKey&&e.select()},selectors={enter:()=>{document.activeElement===addButton&&addItem(),inputs[0].focus()},d:eventSelect(descriptionState.elem),p:eventSelect(priceState.elem),q:eventSelect(qtyState.elem),v:eventSelect(vatState.elem),a:eventSelect(dateState.elem),i:eventSelect(dueState.elem),n:eventSelect(textarea),"+":addItem,"=":addItem,x:eventOpen(getById("save-text")),f:eventOpen(getById("save-pdf")),l:eventOpen(getById("copy-link")),s:eventOpen(getById("copy-link-save")),k:eventOpen(getById("copy-link-edit")),t:copy},getLineAt=(e,t)=>("\n"===e[t]&&t--,{start:e.lastIndexOf("\n",t),end:e.indexOf("\n",t)});textarea.addEventListener("paste",e=>{if(textarea.selectionStart!==textarea.selectionEnd)return;const t=e.clipboardData.getData("text");if("\n"!==t[0]||-1!==t.indexOf("\n",1))return;e.preventDefault();const a=textarea.value,n=textarea.selectionEnd,{start:o}=getLineAt(a,n);textarea.setSelectionRange(o,o),document.execCommand("insertText",!1,t);const r=a.indexOf("\n",n),i=Math.min(r,n+t.length);textarea.setSelectionRange(i,i)}),textarea.addEventListener("copy",e=>{if(textarea.selectionStart!==textarea.selectionEnd)return;e.preventDefault();const t=textarea.value,{start:a,end:n}=getLineAt(t,textarea.selectionEnd),o=a===n?"\n":t.slice(a,n);e.clipboardData.setData("text/plain",o)}),textarea.addEventListener("cut",e=>{if(textarea.selectionStart!==textarea.selectionEnd)return;e.preventDefault();const t=textarea.selectionEnd,{start:a,end:n}=getLineAt(textarea.value,t);textarea.setSelectionRange(a,a===n?n+1:n),document.execCommand("cut"),textarea.setSelectionRange(t,t)}),addEventListener("keydown",e=>{const t=e.key.toLowerCase(),a=e.ctrlKey||e.metaKey;if(inputs.some(isFocused))switch(t){case"enter":if(document.activeElement===textarea)return requestAnimationFrame(()=>invoiceState.elem.scrollTop=0);e.preventDefault();const a=selections.indexOf(document.activeElement)+(e.shiftKey?-1:1),n=a<0?selections.length-1:a%selections.length;return selections[n].focus();case"escape":return document.activeElement.blur&&document.activeElement.blur()}else{if(a){if("s"===t)e.preventDefault(),selectors.x(e);else if("a"===t){if(!e.metaKey&&!e.ctrlKey)return;if(document.documentElement.classList.contains("display-mode"))return;e.preventDefault(),textarea.select()}return}selectors[t]&&!1!==selectors[t](e)&&e.preventDefault()}}),addEventListener("wheel",e=>{"INPUT"===e.target.tagName&&e.target!==document.activeElement&&e.target.focus()});</script> 
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Outvoice</title>
+  <meta charset="utf-8">
+  <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA////AN3V1QDo4+MA/4CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADMiIiIiMwADNERERERDMAMkIiIiIkIwAyQyMjIyQjADJBMTExNCMAMkMTExMUIwAyQRERERQjADJBMTExNCMAMkEREREUIwAyQxMTIyQjADJBERRERDMAMkERFBFCMwAyQREUFCMzADJBERRCMzMAM0RERCMzMwADMiIjMzMwDAAwAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAACAAQAAgAEAAIABAADAAwAA" rel="icon" type="image/x-icon" />
+<style type="text/css">
+* { user-select: none }
+html {
+  padding: 0 8px;
+  background-color: hsl(240, 10%, 90%);
+  color: hsl(240, 30%, 50%);
+}
+
+body, textarea, input, pre, a {
+  font-family:
+    'SF Mono',
+    Monaco,
+    Inconsolata,
+    'Fira Mono',
+    'Droid Sans Mono',
+    'Source Code Pro',
+    monospace;
+}
+
+h1, h2, h3 {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol';
+}
+
+h1 {
+  font-size: 70px;
+  text-align: center;
+  color: hsl(240, 40%, 80%);
+  font-style: italic;
+  letter-spacing: -2px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+h1 span {
+  color: hsl(240, 10%, 80%);
+  font-weight: 100;
+  letter-spacing: 0;
+}
+
+h2 { position: relative }
+h2:after {
+  content:'';    
+  width: calc(100% - 24px);
+  height: 16px;
+  z-index: -1;
+  background-color: hsl(240, 10%, 85%);
+  position: absolute;
+  top: 55%;
+  left: 12px;
+}
+
+h3 {
+  font-size: 16px;
+  font-variant: small-caps;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+b { color: black }
+a { color: hsl(240, 70%, 50%); text-decoration: none }
+a:hover, a:focus { text-decoration: underline }
+li:before { content: '> ' }
+ul { list-style-type: none; padding-left: 1em; margin-top: 4px }
+hr { height: 0; border: none }
+
+/* inputs */
+label { margin-right: 16px }
+
+input[type="number"] {
+  width: 6ch;
+}
+
+input {
+  color: black;
+  background-color: hsl(240, 100%, 97%);
+}
+
+input, button {
+  padding: 6px 8px;
+  font-size: 16px;
+  border: 3px solid hsl(240, 10%, 85%);
+  border-radius: 5px;
+}
+
+button {
+  color: black;
+  border-color: hsl(240, 10%, 85%);
+  background-color: hsl(240, 10%, 85%);
+  font-weight: bold;
+  letter-spacing: 1px;
+  line-height: 17px;
+}
+
+textarea, pre {
+  font-size: 16px;
+  width: 80ch;
+  top: 0;
+  color: black;
+  cursor: text;
+  padding: 2ch;
+  border-width: 0px;
+  overflow: hidden;
+}
+
+textarea {
+  opacity: 0;
+  height: calc(100% - 4ch);
+  background-color: white;
+  position: absolute;
+  resize: none;
+  box-shadow:
+     10px 7px 20px 12px rgba(0, 0, 0, 0.04),
+    -10px 7px 20px 12px rgba(0, 0, 0, 0.04),
+      0px 4px 13px  4px rgba(0, 0, 0, 0.20);
+}
+
+pre {
+  background-color: rgba(255, 255, 255, 0.75);
+  box-shadow:
+     5px 5px 10px 6px rgba(0, 0, 0, 0.03),
+    -5px 5px 10px 6px rgba(0, 0, 0, 0.03),
+     0px 2px  6px 3px rgba(0, 0, 0, 0.10);
+}
+
+/* elements */
+#invoice-wrapper { position: relative }
+#content {
+  width: 672px;
+  width: 84ch;
+  margin: 0 auto;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+#info {
+  width: 80ch;
+  margin: 0 auto;
+}
+
+/* interactions */
+input:hover, button:hover { border-color: black }
+textarea:hover, textarea:focus, textarea:active { opacity: 1 }
+input:focus { background-color: hsl(240, 100%, 99%) }
+button:focus { color: hsl(240, 100%, 75%) }
+button:focus, input:focus {
+  border-color: hsl(240, 100%, 75%);
+  outline: none;
+}
+
+input:active, button:active { border-color: hsl(240, 100%, 50%) }
+button:active { color: hsl(240, 100%, 50%) }
+
+/* hide shortcuts */
+.hide-shortcuts b { color: inherit; font-weight: inherit }
+
+/* display mode */
+.display-mode, .display-mode * { box-shadow: none!important; background: white }
+.display-mode * { display: none; user-select: text }
+.display-mode pre, body, #content, #invoice-wrapper { display: block!important }
+
+/* print mode */
+@media print {
+  * { display: none }
+  * { box-shadow: none!important; background: white }
+  pre, html, body, #content, #invoice-wrapper { display: block!important }
+}
+
+/* cross browser support */
+@supports (-moz-appearance:none) { textarea { top: -1px } }
+</style>
+</head>
+<body>
+  <h1>Outvoice<span>.github.io</span></h1>
+  <div id="content">
+    <div style="display: flex;">
+      <div>
+        <h2>Inputs</h2>
+        <h3>Items</h3>
+        <label>
+          <span><b>d</b>escription</span>
+          <input id="description" type="text" style="width: 38ch" maxlength="37">
+        </label>
+        <hr>
+        <label>
+          <span><b>p</b>rice</span>
+          <input id="price" type="number" min="0" max="9999999">
+        </label>
+        <label>
+          <span><b>q</b>ty</span>
+          <input id="qty" type="number" min="0" max="9999">
+        </label>
+        <label style="margin-right: 0">
+          <span><b>v</b>at</span>
+          <input id="vat" type="number" min="0" max="99">
+        </label>
+        <button id="add">&nbsp+&nbsp</button>
+
+        <h3>D<b>a</b>te</h3>
+        <label>
+          <input id="date" type="date">
+        </label>
+        <label>
+          <span>due <b>i</b>n</span>
+          <input id="due" type="number" min="0" max="999">
+          days
+        </label>
+      </div>
+
+      <div style="flex-grow: 1">
+        <h2>Outputs</h2>
+        <h3>Save As</h3>
+        <ul>
+          <li><a id="save-text" download="file.txt">te<b>x</b>t</a></li>
+          <li><a id="save-pdf" download="file.pdf">pd<b>f</b></a></li>
+        </ul>
+        <h3>Copy As</h3>
+        <ul>
+          <li><a id="copy-text" href="#"><b>t</b>ext</a></li>
+          <li><a id="copy-link" href="#">data-<b>l</b>ink</a> <i>long</i></li>
+          <li><a id="copy-link-edit" href="#">data-lin<b>k</b></a> <i>editable</i></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div id="invoice-wrapper">
+      <textarea tabindex="1" id="invoice-text"></textarea>
+      <pre id="invoice"></pre>
+    </div>
+  </div>
+
+<script type="text/javascript">
+// UTILS
+const getById = id => document.getElementById(id)
+const makeFile = (text, ext, type) => {
+  const file = new File([text], `outvoice.${ext}`, { type })
+  return URL.createObjectURL(file)
+}
+
+const len = str => new TextEncoder().encode(str).byteLength
+const replacer = (rgx, map) => (fn => s => s.replace(rgx, fn))(c => map[c])
+const urlSafeEncode = replacer(/[+/=]/g, { '+': '-', '/': '_', '=': '.' })
+const urlSafeDecode = replacer(/[-_.]/g, { '-': '+', '_': '/', '.': '=' })
+const pdfEscape = replacer(/[()\\]/g, { '(': '\\(', '\\': '\\\\', ')': '\\)' })
+const encodeData = d => urlSafeEncode(btoa(JSON.stringify(d)))
+const decodeData = d => JSON.parse(atob(urlSafeDecode(d)))
+const pdfStream = text => {
+  const lines = text
+    .split('\n')
+    .map((line, index) => `(${pdfEscape(line)}) ${index ? "'" : 'Tj'}`)
+
+  const stream = `  BT
+  /F1 11 Tf
+  26 795 Td
+  18 TL
+  ${lines.join('\n  ')}
+  ET`
+
+  return `<</Length ${len(stream)}>> stream
+${stream}
+endstream`
+}
+
+const HEAD = `%PDF-1.5\n%\x80\x81\x82\x83\n`
+const hexChar = b => b.toString(16).padStart(2, '0')
+const generatePDFIds = async data => {
+  const buff = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(data))
+  return [...new Uint8Array(buff).slice(0, 16)].map(hexChar).join('')
+}
+
+const packPDF = async parts => {
+  const wrapped = parts.map((p, i) => `${i + 1} 0 obj\n${p}\nendobj\n`)
+  const size = wrapped.length + 1
+  const trailers = []
+  let offset = len(HEAD)
+  for (const line of wrapped) {
+    trailers.push(`${String(offset).padStart(10, '0')} 00000 n `.padStart(18, '0'))
+    offset += len(line)
+  }
+  const content = wrapped.join('')
+  const id = await generatePDFIds(content)
+  return `${HEAD}${content}
+xref
+0 ${size}
+0000000000 65535 f
+${trailers.join('\n')}
+
+trailer
+<</Size ${size}
+/Root 1 0 R
+/ID [ <${id}> <${id}> ]>>
+startxref
+${offset + 1}
+%%EOF
+`
+}
+
+const toPDF = text => packPDF([
+  '<</Type /Catalog /Pages 2 0 R>>',
+  '<</Type /Pages /Kids [3 0 R] /Count 1>>',
+  '<</Type /Page /Parent 2 0 R /Resources 4 0 R /MediaBox [0 0 595 842] /Contents 6 0 R>>',
+  '<</Font <</F1 5 0 R>>>>',
+  '<</Type /Font /Subtype /Type1 /BaseFont /Courier>>',
+  pdfStream(text),
+  /*
+  Missing for PDF compliance:
+  - inline courier font
+  - color space data
+  - metadata info, ex:
+  at = new Date().toISOString().slice(0, 19)
+  pdfStream(`<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about=""
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+        xmlns:pdfaid="http://www.aiim.org/pdfa/ns/id/">
+      <dc:format>application/pdf</dc:format>
+      <xmp:CreateDate>${at}Z</xmp:CreateDate>
+      <xmp:ModifyDate>${at}Z</xmp:ModifyDate>
+      <pdfaid:part>1</pdfaid:part>
+      <pdfaid:conformance>B</pdfaid:conformance>
+    </rdf:Description>
+  </rdf:RDF>
+</x:xmpmeta>
+<?xpacket end="w"?>`)
+*/
+])
+
+// INDEX DB
+const idb = (() => {
+const dbp = new Promise((resolve, reject) => {
+  const openreq = window.indexedDB.open('use-idb', 1)
+    openreq.onerror = () => reject(openreq.error)
+    openreq.onsuccess = () => resolve(openreq.result)
+    openreq.onupgradeneeded = () => openreq.result.createObjectStore('idb')
+  })
+
+  const call = async (type, method, ...args) => {
+    const db = await dbp
+    const transaction = db.transaction('idb', type)
+    const store = transaction.objectStore('idb')
+
+    return new Promise((resolve, reject) => {
+      const req = store[method](...args)
+      transaction.oncomplete = () => resolve(req)
+      transaction.onabort = transaction.onerror = () => reject(transaction.error)
+    })
+  }
+
+  return {
+    get: async key => (await call('readonly', 'get', key)).result,
+    set: (key, value) => value === undefined
+      ? call('readwrite', 'delete', key)
+      : call('readwrite', 'put', value, key)
+  }
+})()
+
+
+// STATE MANAGEMENT
+const handlers = {
+  get: elem => elem.value,
+  set: (elem, value) => elem.value = value,
+  parse: _ => _,
+  compare: (a, b) => a === b,
+  compareRaw: (a, b) => a === b,
+  persist: true,
+  INPUTnumber: {
+    get: elem => elem.valueAsNumber,
+    set: (elem, value) => elem.valueAsNumber = Number(value),
+  },
+  INPUTdate: {
+    compare: (a, b) => a && b && a.getTime() === b.getTime(),
+    compareRaw: (a, b) => a && b && a.getTime() === b.getTime(),
+    get: elem => elem.valueAsDate,
+    set: (elem, value) => elem.valueAsDate = new Date(value),
+  },
+}
+
+const events = new Set
+const loop = () => {
+  for (const ev of events) ev()
+  setTimeout(() => requestAnimationFrame(loop))
+}
+
+const exec = (subs, value) => {
+  try { for (const sub of subs) sub(value) }
+  catch (err) { console.error('Unhandled:', err.stack) }
+}
+
+const stated = (id, defaultValue, opts) => {
+  const elem = getById(id)
+  const { get, set, persist, parse, compare, compareRaw } = {
+    ...handlers,
+    ...handlers[elem.tagName+elem.type],
+    ...opts,
+  }
+
+  const subs = new Set
+  const subsError = new Set
+  let _value
+  let _failed
+  let _nextValue
+  let _rawValue
+  let _wasFocus
+
+  const apply = value => compare(value, _value) ? value : (_nextValue = value)
+
+  events.add(() => {
+    const isFocus = document.activeElement === elem
+    if (isFocus) {
+      const newRawValue = get(elem)
+      if (newRawValue === null) return
+      if (!compareRaw(_rawValue, newRawValue)) {
+        try {
+          apply(parse(newRawValue, _value))
+          _failed = false
+          _rawValue = newRawValue
+        } catch (err) {
+          console.log('failed to parse new input value for state', id)
+          console.log(newRawValue)
+          console.warn(err.stack)
+          _failed = true
+          set(elem, _value)
+          setTimeout(exec, 0, subsError, err)
+          return
+        }
+      }
+    } else if (_wasFocus) {
+      _wasFocus = false
+      set(elem, _value)
+      setTimeout(exec, 0, subs, _value)
+      return
+    }
+
+    if (_failed) return
+    if (_nextValue === undefined) return
+
+    _value = _nextValue
+    _nextValue = undefined
+    setTimeout(exec, 0, subs, _value)
+    isFocus ? (_wasFocus = true) : set(elem, _value)
+    persist && idb.set(id, _value).catch(console.error)
+  })
+
+  const init = persist
+    ? idb.get(id).then(value => apply(value || defaultValue))
+    : Promise.resolve().then(() => apply(defaultValue))
+
+  return {
+    elem,
+    then: init.then.bind(init),
+    catch: init.catch.bind(init),
+    set: value => apply(value),
+    reset: () => apply(defaultValue),
+    getRaw: () => _rawValue,
+    get: () => _value,
+    once: (fn, s) => s = subs.delete(v => s(fn(v))),
+    sub: (success, failure) => {
+      typeof success === 'function' && subs.add(success)
+      typeof failure === 'function' && subsError.add(failure)
+      return () => {
+        subs.delete(success)
+        subsError.delete(failure)
+      }
+    }
+  }
+}
+
+const hyperLink = (id, generate) => {
+  const a = getById(id)
+  let _update
+
+  const apply = async e => {
+    if (!_update) return
+    _update = undefined
+    const result = generate()
+    if (!result) return e.preventDefault()
+    a.href = await result
+  }
+
+  a.addEventListener('click', apply, { passive: true })
+  a.open = async mod => {
+    await apply()
+    a.dispatchEvent(new MouseEvent('click', { ctrlKey: mod, metaKey: mod }))
+  }
+
+  return () => _update = true
+}
+
+// PARSING & FORMATING
+const PADS = {
+  description: 37,
+  subtotal: 9,
+  total: 22,
+  price: 8,
+  qty: 4,
+  vat: 4,
+  no: 3,
+}
+
+const padAll = obj => Object.keys(obj)
+  .map(key => Number(obj[key]) == obj[key]
+    ? String(obj[key]).padStart(PADS[key] || 0, ' ')
+    : ` ${String(obj[key]).padEnd(PADS[key] - 1 || 0, ' ')}`)
+
+const getTotalExcl = items => `(excl tax) ${Math.ceil(items
+    .reduce((acc, { price, qty }) => price * qty + acc, 0))}`
+  .padStart(PADS.total, ' ')
+
+const getTotalVat = items => `+ ${items
+    .reduce((acc, { price, qty, vat }) => price*(vat/100) * qty + acc, 0)
+    .toFixed(2)}`
+  .padStart(PADS.total, ' ')
+
+const getTotalIncl = items => `(incl tax): ${items
+    .reduce((acc, { price, qty, vat }) => (price + price*(vat/100))*qty + acc, 0)
+    .toFixed(2)} EURO`
+  .padEnd(36, ' ')
+
+const getList = items => items
+  .map(({ description, price = 0, qty = 1, vat = 0 }, i) => padAll({
+    no: String(i + 1).padStart(2, '0'),
+    description,
+    price: `${price}`,
+    qty,
+    vat,
+    subtotal: `${price * qty}`,
+  })
+  .join(' |'))
+  .map(l => `  |${l} |`)
+  .join('\n')
+
+const formatInvoiceFixed = ({ header, separator, body, items, due, date }) => [
+  header,
+  formatDate(date),
+  separator,
+  formatDate(date, due),
+  body, `
+        -----------------------------------------------------------------------
+       | DESCRIPTION                          |  PRICE  | QTY | VAT | SUBTOTAL |
+   ............................................................................|
+${getList(items)}
+   -------------------------------------------|................................|
+                                              |         ${getTotalExcl(items)} |
+> TOTAL ${getTotalIncl(items)              }  |         ${ getTotalVat(items)} |
+                                               --------------------------------
+` ].join('')
+
+const trim = s => s.trim()
+const pad2 = n => String(n).padStart(2, '0')
+const getId = date => {
+  const m = pad2(date.getMonth() + 1)
+  const y = date.getFullYear()
+  return [m, y, String((localStorage[m+y] || 1)).padStart(3, '0')].join('-')
+}
+
+const formatDate = (d, offset = 0) => {
+  const e = new Date(d.getFullYear(), d.getMonth(), d.getDate() + offset)
+  return [e.getDate(), e.getMonth()+1, e.getFullYear()].map(pad2).join('/')
+}
+
+const parseItemLine = line => {
+  const matches = line.split('|').map(trim).filter(Boolean)
+  const description = matches[1]
+  const price = Number(matches[2])
+  const qty = Number(matches[3])
+  const vat = Number(matches[4])
+  return { description, price, qty, vat }
+}
+
+const parseInvoiceText = (value, prev) => {
+  const [ , header, separator, body, items ] = value
+    .split(/([^]*?)\d+\/\d+\/\d+([^]*?)\d+\/\d+\/\d+([^]*?)\n.+\n.+\| DESCRIPTION.+ \|\n.+([^]*?)\n   -/)
+
+  return {
+    ...prev,
+    header,
+    separator,
+    body,
+    items: items.trim().split('\n').filter(trim).map(parseItemLine),
+  }
+}
+
+// HANDLE DISPLAY MODE
+let urlData = {}
+try {
+  const params = new URLSearchParams(window.location.search)
+  const data = params.get('data')
+  if (data) {
+    urlData = decodeData(data)
+    urlData.date = new Date(urlData.date)
+    const editable = params.has('edit')
+    urlData.persistance = { override: editable, persist: editable }
+    editable || document.documentElement.classList.add('display-mode')
+  }
+} catch (err) {
+  console.log('Error loading url', window.location.search)
+  console.log(err)
+}
+
+// ELEMENTS
+const persistance = urlData.persistance || { persist: true }
+const defaultDate = urlData.date || new Date
+const invoicePre = getById('invoice')
+const addButton = getById('add')
+const descriptionState = stated('description', urlData.description || 'Software Development')
+const priceState = stated('price', urlData.price || 400)
+const qtyState = stated('qty', urlData.qty || 1)
+const vatState = stated('vat', urlData.vat || '0')
+const dueState = stated('due', urlData.due || 7, persistance)
+const dateState = stated('date', defaultDate, { persist: false })
+const invoiceState = stated('invoice-text', {
+  header: `# Invoice ${getId(defaultDate)}\n\nCreated `,
+  date: defaultDate,
+  separator: ` - Due `,
+  due: urlData.due || 7,
+  body: `
+
+> FROM
+  NAME     Clark Kent
+  ADDRESS  66 rue Wonder Woman - 99000 Metropolis - FRANCE
+  EMAIL    email@gmail.com
+  PHONE    +33601020304
+  SIRET    88776655400000
+  IBAN     FR76167980000000000000000000
+  BIC      TRZOFR21XXX
+
+> BILLED TO
+  NAME     SUPERMAN INC
+  ADDRESS  66 rue Wonder Woman - 99000 Metropolis - FRANCE
+  EMAIL    superman@dc.comics
+  VAT      101010101
+
+`,
+  items: [
+    { description: 'Software Development', price: 400, qty: 1, vat: 0 },
+    { description: 'Some License', price: 27, qty: 3, vat: 20 },
+  ],
+  ...urlData,
+}, {
+  ...persistance,
+  parse: parseInvoiceText,
+  set: (elem, invoice) => elem.value = formatInvoiceFixed(invoice),
+})
+
+
+// HANDLE EVENTS
+const states = [
+  descriptionState,
+  priceState,
+  qtyState,
+  vatState,
+  dateState,
+  dueState,
+  invoiceState,
+]
+
+const textarea = invoiceState.elem
+const selections = [...states.slice(0, 4), addButton, ...states.slice(4)]
+  .map(elem => elem.elem || elem)
+
+const inputs = selections.filter(elem => elem !== addButton)
+
+const isFocused = elem => document.activeElement === elem
+const baseUrl = `${window.location.origin}${window.location.pathname}`
+
+const copy = () => navigator.clipboard.writeText(textarea.value)
+const copyLink = url => navigator.clipboard.writeText(`${baseUrl}?${url}`)
+const addItem = () => invoiceState.set({
+  ...invoiceState.get(),
+  items: [
+    ...invoiceState.get().items,
+    {
+      description: descriptionState.get(),
+      price: priceState.get(),
+      qty: qtyState.get(),
+      vat: vatState.get(),
+    },
+  ],
+})
+
+invoiceState.sub(hyperLink('save-text', () =>
+  makeFile(textarea.value, 'txt', 'plain/text')))
+
+invoiceState.sub(hyperLink('save-pdf', () =>
+  toPDF(textarea.value).then(pdf => makeFile(pdf,  'pdf', 'application/pdf'))
+))
+ 
+invoiceState.sub(hyperLink('copy-link', () =>
+  copyLink(`data=${encodeData(invoiceState.get())}`)))
+
+const regenEditLink = hyperLink('copy-link-edit', () =>
+  copyLink(`edit&data=${encodeData({
+    description: descriptionState.get(),
+    price: priceState.get(),
+    qty: qtyState.get(),
+    vat: vatState.get(),
+    ...invoiceState.get(),
+  })}`))
+
+invoiceState.sub(regenEditLink)
+qtyState.sub(regenEditLink)
+vatState.sub(regenEditLink)
+priceState.sub(regenEditLink)
+descriptionState.sub(regenEditLink)
+
+invoiceState.sub(() => invoicePre.textContent = textarea.value)
+dueState.sub(due => invoiceState.set({ ...invoiceState.get(), due }))
+dateState.sub(date => invoiceState.set({ ...invoiceState.get(), date }))
+addButton.addEventListener('click', addItem)
+
+events.add(() => {
+  const hide = !document.hasFocus() || inputs.some(isFocused)
+  document.body.classList.toggle('hide-shortcuts', hide)
+})
+
+Promise.all(states
+  .map(state => state.catch(err => {
+    console.error('Error loading state', state.id, err.stack)
+    return state.reset()
+  })))
+  .then(loop)
+  .then(() => getById('content').style.opacity = 1)
+
+const eventOpen = a => e => a.open(e.shiftKey)
+const eventSelect = input => e => {
+  input.focus()
+  e.shiftKey && input.select()
+}
+
+const selectors = {
+  enter: () => {
+    document.activeElement === addButton && addItem()
+    inputs[0].focus()
+  },
+  d: eventSelect(descriptionState.elem),
+  p: eventSelect(priceState.elem),
+  q: eventSelect(qtyState.elem),
+  v: eventSelect(vatState.elem),
+  a: eventSelect(dateState.elem),
+  i: eventSelect(dueState.elem),
+  n: eventSelect(textarea),
+  '+': addItem,
+  '=': addItem,
+  x: eventOpen(getById('save-text')),
+  f: eventOpen(getById('save-pdf')),
+  l: eventOpen(getById('copy-link')),
+  k: eventOpen(getById('copy-link-edit')),
+  t: copy,
+}
+
+const getLineAt = (text, pos) => {
+  text[pos] === '\n' && pos--
+  return { start: text.lastIndexOf('\n', pos), end: text.indexOf('\n', pos) }
+}
+
+textarea.addEventListener('paste', e => {
+  if (textarea.selectionStart !== textarea.selectionEnd) return
+  const clipboardText = e.clipboardData.getData('text')
+  if (clipboardText[0] !== '\n' || clipboardText.indexOf('\n', 1) !== -1) return
+  e.preventDefault()
+
+  const text = textarea.value
+  const selection = textarea.selectionEnd
+  const { start } = getLineAt(text, selection)
+  textarea.setSelectionRange(start, start)
+  document.execCommand('insertText', false, clipboardText)
+  const nearestNL = text.indexOf('\n', selection)
+  const newSelection = Math.min(nearestNL, selection + clipboardText.length)
+  textarea.setSelectionRange(newSelection, newSelection)
+})
+
+textarea.addEventListener('copy', e => {
+  if (textarea.selectionStart !== textarea.selectionEnd) return
+  e.preventDefault()
+
+  const text = textarea.value
+  const { start, end } = getLineAt(text, textarea.selectionEnd)
+  const data = start === end ? '\n' : text.slice(start, end)
+  e.clipboardData.setData('text/plain', data)
+})
+
+textarea.addEventListener('cut', e => {
+  if (textarea.selectionStart !== textarea.selectionEnd) return
+  e.preventDefault()
+
+  const pos = textarea.selectionEnd
+  const { start, end } = getLineAt(textarea.value, pos)
+
+  textarea.setSelectionRange(start, start === end ? end + 1 : end)
+  document.execCommand('cut')
+  textarea.setSelectionRange(pos, pos)
+})
+
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase()
+  const isAction = e.ctrlKey || e.metaKey
+  if (!inputs.some(isFocused)) {
+    if (isAction) {
+      if (k === 's') {
+        e.preventDefault()
+        selectors.x(e) // save text file
+      } else if (k === 'a') {
+        if (!e.metaKey && !e.ctrlKey) return
+        if (document.documentElement.classList.contains('display-mode')) return
+        e.preventDefault()
+        textarea.select()
+      }
+      return
+    }
+    selectors[k] && selectors[k](e) !== false && e.preventDefault()
+    return
+  }
+
+  switch (k) {
+    case 'enter':
+      if (document.activeElement === textarea) {
+        return requestAnimationFrame(() => invoiceState.elem.scrollTop = 0)
+      }
+      e.preventDefault()
+      const index = selections.indexOf(document.activeElement)
+        + (e.shiftKey ? -1 : 1)
+
+      const clampedIndex = index < 0
+        ? selections.length - 1
+        : index % selections.length
+
+      return selections[clampedIndex].focus()
+    case 'escape':
+      return document.activeElement.blur && document.activeElement.blur()
+  }
+})
+
+addEventListener('wheel', e => {
+  e.target.tagName === 'INPUT' &&
+    e.target !== document.activeElement &&
+    e.target.focus()
+})
+
+
+/* * * * TODO * * *
+ * save / list / restore previous 
+ * autocompletion for used items
+ * validate: max width
+ * validate: max height
+ * validate: proper table markers
+ * validate: show error to users
+ * validate: ascii only ?
+ * cursor not properly restaured on paste
+ * check si link cree des leaks
+ * user help
+ * parse (and validate) dates from textarea
+ */
+
+</script>
+</body>
+</html>
