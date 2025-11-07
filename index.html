@@ -109,6 +109,15 @@ button {
   line-height: 17px;
 }
 
+li > button {
+  color: hsl(240, 70%, 50%);
+  font-weight: normal;
+  letter-spacing: 0px;
+  line-height: 18px;
+  padding: 2px 4px;
+  margin: 2px;
+}
+
 textarea, pre {
   font-size: 16px;
   width: 80ch;
@@ -166,6 +175,18 @@ button:focus, input:focus {
 
 input:active, button:active { border-color: hsl(240, 100%, 50%) }
 button:active { color: hsl(240, 100%, 50%) }
+
+#copied {
+  color: white;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background: #0006;
+  padding: 3px 6px;
+  border-radius: 3px;
+}
 
 /* hide shortcuts */
 .hide-shortcuts b { color: inherit; font-weight: inherit }
@@ -232,9 +253,9 @@ button:active { color: hsl(240, 100%, 50%) }
         </ul>
         <h3>Copy As</h3>
         <ul>
-          <li><a id="copy-text" href="#"><b>t</b>ext</a></li>
-          <li><a id="copy-link" href="#">data-<b>l</b>ink</a> <i>long</i></li>
-          <li><a id="copy-link-edit" href="#">data-lin<b>k</b></a> <i>editable</i></li>
+          <li><button id="copy-text"><b>t</b>ext</button></li>
+          <li><button id="copy-link">data-<b>l</b>ink</button> <i>long</i></li>
+          <li><button id="copy-link-edit">data-lin<b>k</b></button> <i>editable</i></li>
         </ul>
       </div>
 
@@ -245,7 +266,7 @@ button:active { color: hsl(240, 100%, 50%) }
       <pre id="invoice"></pre>
     </div>
   </div>
-
+  <div id="copied">copied !</div>
 <script type="text/javascript">
 // UTILS
 const getById = id => document.getElementById(id)
@@ -484,18 +505,20 @@ const stated = (id, defaultValue, opts) => {
   }
 }
 
-const hyperLink = (id, generate) => {
+const downloadLink = (id, generate) => {
   const a = getById(id)
   let _update
 
   const apply = async e => {
     if (!_update) return
     _update = undefined
-    const result = generate()
-    if (!result) return e.preventDefault()
-    a.href = await result
+    const { href, ext } = await generate()
+    a.href = href
+    a.download = `invoice-${getId(dateState.get())}.${ext}`
   }
 
+  a.addEventListener('mouseenter', apply)
+  a.addEventListener('focus', apply)
   a.addEventListener('click', apply, { passive: true })
   a.open = async mod => {
     await apply()
@@ -504,6 +527,40 @@ const hyperLink = (id, generate) => {
 
   return () => _update = true
 }
+
+
+const copied = getById('copied')
+const copiedAnim = copied.animate(
+  [
+    { transform: 'translateY(0)', opacity: 1 },
+    { transform: 'translateY(-50px)', opacity: 0 },
+  ],
+  { duration: 1600, easing: 'ease-out', fill: 'forwards' },
+)
+copiedAnim.onfinish = () => {
+  copied.style.opacity = 0
+  copied.style.transform = 'translateY(0)'
+}
+const playCopyAnimation = () => copiedAnim.play()
+const copyLink = (id, generate) => {
+  const btn = getById(id)
+  const apply = async e => {
+    const rect = btn.getBoundingClientRect()
+    copied.style.top = `${rect.y - rect.height}px`
+    copied.style.left = `${rect.x}px`
+    copiedAnim.finish()
+    // play on the next frame to avoid race condition that toggle the anim
+    requestAnimationFrame(playCopyAnimation)
+    navigator.clipboard.writeText(generate())
+  }
+
+  btn.addEventListener('click', apply, { passive: true })
+  btn.open = () => {
+    btn.focus()
+    btn.click()
+  }
+}
+
 
 // PARSING & FORMATING
 const PADS = {
@@ -682,8 +739,6 @@ const inputs = selections.filter(elem => elem !== addButton)
 const isFocused = elem => document.activeElement === elem
 const baseUrl = `${window.location.origin}${window.location.pathname}`
 
-const copy = () => navigator.clipboard.writeText(textarea.value)
-const copyLink = url => navigator.clipboard.writeText(`${baseUrl}?${url}`)
 const addItem = () => invoiceState.set({
   ...invoiceState.get(),
   items: [
@@ -697,30 +752,28 @@ const addItem = () => invoiceState.set({
   ],
 })
 
-invoiceState.sub(hyperLink('save-text', () =>
-  makeFile(textarea.value, 'txt', 'plain/text')))
+invoiceState.sub(downloadLink('save-text', () => ({
+  href: makeFile(textarea.value, 'txt', 'plain/text'),
+  ext: 'txt',
+})))
 
-invoiceState.sub(hyperLink('save-pdf', () =>
-  toPDF(textarea.value).then(pdf => makeFile(pdf,  'pdf', 'application/pdf'))
-))
- 
-invoiceState.sub(hyperLink('copy-link', () =>
-  copyLink(`data=${encodeData(invoiceState.get())}`)))
+invoiceState.sub(downloadLink('save-pdf', async () => ({
+  href: await makeFile(toPDF(textarea.value),  'pdf', 'application/pdf'),
+  ext: 'pdf',
+})))
 
-const regenEditLink = hyperLink('copy-link-edit', () =>
-  copyLink(`edit&data=${encodeData({
+const toUrl = search => `${baseUrl}?${search}`
+
+copyLink('copy-text', () => textarea.value)
+copyLink('copy-link', () => toUrl(`data=${encodeData(invoiceState.get())}`))
+copyLink('copy-link-edit', () =>
+  toUrl(`edit&data=${encodeData({
     description: descriptionState.get(),
     price: priceState.get(),
     qty: qtyState.get(),
     vat: vatState.get(),
     ...invoiceState.get(),
   })}`))
-
-invoiceState.sub(regenEditLink)
-qtyState.sub(regenEditLink)
-vatState.sub(regenEditLink)
-priceState.sub(regenEditLink)
-descriptionState.sub(regenEditLink)
 
 invoiceState.sub(() => invoicePre.textContent = textarea.value)
 dueState.sub(due => invoiceState.set({ ...invoiceState.get(), due }))
@@ -762,9 +815,9 @@ const selectors = {
   '=': addItem,
   x: eventOpen(getById('save-text')),
   f: eventOpen(getById('save-pdf')),
+  t: eventOpen(getById('copy-text')),
   l: eventOpen(getById('copy-link')),
   k: eventOpen(getById('copy-link-edit')),
-  t: copy,
 }
 
 const getLineAt = (text, pos) => {
